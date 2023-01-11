@@ -13,7 +13,7 @@ export default hopeTheme({
   iconAssets: "iconfont",
 
   logo: "https://etheral.oss-cn-shanghai.aliyuncs.com/images/1.png",
-
+  fullscreen: true,
   repo: "vuepress-theme-hope/vuepress-theme-hope",
 
   docsDir: "docs",
@@ -70,13 +70,14 @@ export default hopeTheme({
       // sidebar
       sidebar: zhSidebar,
 
-      footer: "默认页脚",
+      footer: "如果运气不行，试试勇气。",
 
       displayFooter: true,
 
       blog: {
+        roundAvatar: true,
         description: "一个前端开发者",
-        intro: "/intro.html",
+        // intro: "/intro.html",
       },
 
       // page meta
@@ -88,7 +89,7 @@ export default hopeTheme({
 
   encrypt: {
     config: {
-      "/demo/encrypt.html": ["1234"],
+      // "/demo/encrypt.html": ["1234"],
     },
   },
 

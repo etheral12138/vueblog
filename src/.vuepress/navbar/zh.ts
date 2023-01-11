@@ -2,46 +2,37 @@ import { navbar } from "vuepress-theme-hope";
 
 export const zhNavbar = navbar([
   "/",
-  { text: "演示", icon: "discover", link: "/demo/" },
   {
     text: "博文",
     icon: "edit",
     prefix: "/posts/",
     children: [
       {
-        text: "苹果",
+        text: "前端技术",
         icon: "edit",
-        prefix: "apple/",
+        prefix: "front-end/",
         children: [
-          { text: "苹果1", icon: "edit", link: "1" },
-          { text: "苹果2", icon: "edit", link: "2" },
-          "3",
-          "4",
+          { text: "JavaScript", icon: "edit", link: "JavaScript" },
+          { text: "TypeScript", icon: "edit", link: "TypeScript" },
         ],
       },
       {
-        text: "香蕉",
+        text: "数据结构与算法",
         icon: "edit",
-        prefix: "banana/",
+        prefix: "algorithm/",
         children: [
           {
-            text: "香蕉 1",
+            text: "二叉树",
             icon: "edit",
-            link: "1",
+            link: "二叉树",
           },
           {
-            text: "香蕉 2",
+            text: "回溯算法（DFS）",
             icon: "edit",
-            link: "2",
+            link: "回溯算法（DFS）",
           },
-          "3",
-          "4",
         ],
       },
-      { text: "樱桃", icon: "edit", link: "cherry" },
-      { text: "火龙果", icon: "edit", link: "dragonfruit" },
-      "tomato",
-      "strawberry",
     ],
   },
 ]);

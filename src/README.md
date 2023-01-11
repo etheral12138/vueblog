@@ -9,9 +9,9 @@ heroFullScreen: true
 tagline: 欢迎来到我的博客！
 projects:
   - icon: project
-    name: 项目名称
-    desc: 项目详细描述
-    link: https://你的项目链接
+    name: 前端技术
+    desc: 
+    link: 
 
   - icon: link
     name: 链接名称
@@ -32,10 +32,5 @@ projects:
     name: 伙伴名称
     desc: 伙伴详细介绍
     link: https://你的伙伴链接
-
-  - icon: /logo.svg
-    name: 自定义项目
-    desc: 自定义详细介绍
-    link: https://你的自定义链接
 
 ---
