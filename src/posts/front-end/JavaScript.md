@@ -1,7 +1,11 @@
 ---
 title: JavaScript
 date: 2023-1-10
-categories: 前端技术
+category: 
+ - 前端技术
+tag:
+ - Web
+ - JS
 ---
 # JavaScript中this的指向
 首先我们来看总结图：
