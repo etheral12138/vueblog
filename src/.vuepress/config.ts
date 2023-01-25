@@ -4,7 +4,7 @@ import { hopeTheme } from "vuepress-theme-hope";
 // @ts-ignore
 import theme from "./theme";
 export default defineUserConfig({
-    base: "/",
+    base: "/vueblog/",
     locales: {
         "/": {
             lang: "zh-CN",

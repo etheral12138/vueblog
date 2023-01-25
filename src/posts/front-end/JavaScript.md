@@ -57,7 +57,7 @@ let work = makeWorker();
 work(); // 会显示什么？
 ```
 
-![image-20230124162419717](D:/blog/my-docs/src/posts/front-end/assets/image-20230124162419717.png)
+![image-20230124162419717](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230124162419717.png)
 
 所以这里的结果是 `"Pete"`。
 
@@ -672,7 +672,7 @@ extends 语法会设置两个原型：
 
 例如，`Array` 和 `Date` 都继承自 `Object`，所以它们的实例都有来自 `Object.prototype` 的方法。但 `Array.[[Prototype]]` 并不指向 `Object`，所以它们没有例如 `Array.keys()`（或 `Date.keys()`）这些静态方法。
 
-![image-20230125151241315](D:/blog/my-docs/src/posts/front-end/assets/image-20230125151241315.png)
+![image-20230125151241315](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
 
 ### Mixin
 
