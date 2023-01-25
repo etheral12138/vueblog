@@ -7,9 +7,11 @@ tag:
 - Web
 - JS
 ---
-# 一、JavaScript函数
 
-## 函数声明与函数表达式
+
+## 一、JavaScript函数
+
+### 函数声明与函数表达式
 
 - 函数声明
 
@@ -21,7 +23,7 @@ tag:
 
   
 
-## 函数特性
+### 函数特性
 
 函数将从内到外依次在对应的词法环境中寻找目标变量，它使用最新的值。
 
@@ -57,15 +59,15 @@ let work = makeWorker();
 work(); // 会显示什么？
 ```
 
-![image-20230124162419717](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230124162419717.png)
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230124162419717.png)
 
 所以这里的结果是 `"Pete"`。
 
 但如果在 `makeWorker()` 中没有 `let name`，那么将继续向外搜索并最终找到全局变量，正如我们可以从上图中看到的那样。在这种情况下，结果将是 `"John"`。
 
-## …语法
+### …语法
 
-### Rest参数
+#### Rest参数
 
 我们可以在函数定义中声明一个数组来收集参数。语法是这样的：`...变量名`，这将会声明一个数组并指定其名称，其中存有剩余的参数。这三个点的语义就是“收集剩余的参数并存进指定数组中”。
 
@@ -126,7 +128,7 @@ showName("Julius", "Caesar");
 showName("Ilya");
 ```
 
-### Spread语法
+#### Spread语法
 
 **Spread 语法** 看起来和 rest 参数很像，也使用 `...`，但是二者的用途完全相反。
 
@@ -167,9 +169,13 @@ alert( Array.from(str) ); // H,e,l,l,o
 
 旧式的 `arguments`（类数组且可迭代的对象）也依然能够帮助我们获取函数调用中的所有参数。
 
-## this指针
+### this指针
 
-首先我们来看总结图：![js](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
+首先我们来看总结图：
+
+
+
+![js](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
 
 可见：Javascript中的this指针与Java中的this很像。
 
@@ -238,7 +244,7 @@ console.log(add1()); // 执行新的函数，输出 6
 
 箭头函数没有自身的 `this`，意味着没有自己的构造器（constructor），不能被new调用。**也没有特殊的 `arguments` 对象。**箭头函数的this指向上一级。
 
-## 闭包
+### 闭包
 
 [闭包](https://en.wikipedia.org/wiki/Closure_(computer_programming)) 是指一个函数可以记住其外部变量并可以访问这些变量。在某些编程语言中，这是不可能的，或者应该以一种特殊的方式编写函数来实现。但在 JavaScript 中，所有函数都是天生闭包的（只有一个例外，）。
 
@@ -277,9 +283,9 @@ func();
 
 换句话说，一个变量从技术的角度来讲是存在的，但是在 `let` 之前还不能使用。
 
-## 词法环境
+### 词法环境
 
-## var声明
+#### var声明
 
 用 `var` 声明的变量，不是函数作用域就是全局作用域。它们在代码块外也是可见的（译注：也就是说，`var` 声明的变量只有函数作用域和全局作用域，没有块级作用域）。
 
@@ -303,25 +309,25 @@ sayHi();
 
 在浏览器中，使用 `var`（而不是 `let/const`！）声明的全局函数和变量会成为全局对象的属性。
 
-# 二、JavaScript的常用API实现
+## 二、JavaScript的常用API实现
 
-## 1.call
-
-
-
-## 2.apply
+### 1.call
 
 
 
-## 3.bind
+### 2.apply
 
 
 
-## 4.Promise.all
+### 3.bind
 
 
 
-## 5.函数筛选
+### 4.Promise.all
+
+
+
+### 5.函数筛选
 
 我们有一个内建的数组方法 `arr.filter(f)`。它通过函数 `f` 过滤元素。如果它返回 `true`，那么该元素会被返回到结果数组中。
 
@@ -360,7 +366,7 @@ let arr = [1, 2, 3, 4, 5, 6, 7];
 alert( arr.filter(inArray([1, 2, 10])) ); // 1,2
 ```
 
-## 6.函数排序规则
+### 6.函数排序规则
 
 ```javascript
 //升序排列
@@ -399,17 +405,17 @@ var arr = [1,5,2,10,15];
    console.log(arr);
 ```
 
-## 7.防抖
+### 7.防抖
 
 
 
-## 8.节流
+### 8.节流
 
 
 
-# 三、JavaScript的模块
+## 三、JavaScript的模块
 
-## 1.默认导出
+### 1.默认导出
 
 每个文件只有一个export default，所以导入时import知道要导入的是什么，可以不用写大括号。
 
@@ -420,9 +426,9 @@ export User{...} //user.js
 => import {User} from "./user.js"
 ```
 
-## 2.总结
+### 2.总结
 
-### 1.导出
+#### 导出
 
 - 在声明一个 class/function/… 之前：
   - `export [default] class/function/variable ...`
@@ -433,7 +439,7 @@ export User{...} //user.js
   - `export * from "module"`（不会重新导出默认的导出）。
   - `export {default [as y]} from "module"`（重新导出默认的导出）。
 
-### 2.导入
+#### 导入
 
 - 导入命名的导出：
   - `import {x [as y], ...} from "module"`
@@ -445,9 +451,9 @@ export User{...} //user.js
 - 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
   - `import "module"`
 
-# 四、JavaScript对象的属性配置
+## 四、JavaScript对象的属性配置
 
-## 1.getter和setter
+### 1.getter和setter
 
 对象的属性有两种类型。
 
@@ -507,7 +513,7 @@ user.name = ""; // Name 太短了……
 
 从技术上讲，外部代码可以使用 `user._name` 直接访问 name。但是，这儿有一个众所周知的约定，即以下划线 `"_"` 开头的属性是内部属性，不应该从对象外部进行访问。
 
-## 2.对象属性
+### 2.对象属性
 
 - **`writable`** — 如果为 `true`，则值可以被修改，否则它是只可读的。
 
@@ -517,9 +523,9 @@ user.name = ""; // Name 太短了……
 
 - **`configurable`** — 如果为 `true`，则此属性可以被删除，这些特性也可以被修改，否则不可以。
 
-# 五、JavaScript原型与继承
+## 五、JavaScript原型与继承
 
-## 1.原型（prototype）
+### 1.原型（prototype）
 
 每个函数都有 `"prototype"` 属性，即使我们没有提供它。
 
@@ -539,9 +545,9 @@ Rabbit.prototype = { constructor: Rabbit };
 - `F.prototype` 的值要么是一个对象，要么就是 `null`：其他值都不起作用。
 - `"prototype"` 属性仅当设置在一个构造函数上，并通过 `new` 调用时，才具有这种特殊的影响。
 
-# 六、JavaScript的迭代器和生成器
+## 六、JavaScript的迭代器和生成器
 
-## generator(生成器)
+### generator(生成器)
 
 常规函数只会返回一个单一值（或者不返回任何值）。
 
@@ -565,7 +571,7 @@ alert(generator); // [object Generator]
 - `value`: 产出的（yielded）的值。
 - `done`: 如果 generator 函数已执行完成则为 `true`，否则为 `false`。此时再对 `generator.next()` 进行新的调用不再有任何意义。如果我们这样做，它将返回相同的对象：`{done: true}`。
 
-### generator是可迭代的
+#### generator是可迭代的
 
 ```javascript
 function* generateSequence() {
@@ -599,8 +605,6 @@ for(let value of generator) {
 }
 ```
 
-
-
 ```javascript
 let range = {
   from: 1,
@@ -620,15 +624,15 @@ alert( [...range] ); // 1,2,3,4,5
 
 带有 generator 的变体比原来的 `range` 迭代代码简洁得多，并且保持了相同的功能。
 
-### 总结
+#### 总结
 
 - generator 是通过 generator 函数 `function* f(…) {…}` 创建的。
 - 在 generator（仅在）内部，存在 `yield` 操作。
 - 外部代码和 generator 可能会通过 `next/yield` 调用交换结果。
 
-# 七、JavaScript的类
+## 七、JavaScript的类
 
-## 1.静态属性与方法
+### 1.静态属性与方法
 
 静态方法被用于实现属于整个类的功能。它属于类本身，与具体的类实例无关，与类本身的原型无关。
 
@@ -640,7 +644,7 @@ alert( [...range] ); // 1,2,3,4,5
 
 对于 `class B extends A`，类 `B` 的 prototype 指向了 `A`：`B.[[Prototype]] = A`。因此，如果一个字段在 `B` 中没有找到，会继续在 `A` 中查找。
 
-## 2.类的继承（extends)
+### 2.类的继承（extends)
 
 子类需要在继承时调用父类的 constructor，例如：
 
@@ -660,7 +664,7 @@ extends 语法会设置两个原型：
 1. 在构造函数的 `"prototype"` 之间设置原型（为了获取实例方法）。
 2. 在构造函数之间会设置原型（为了获取静态方法）。
 
-### 内建类没有静态方法继承
+#### 内建类没有静态方法继承
 
 内建对象有它们自己的静态方法，例如 `Object.keys`，`Array.isArray` 等。
 
@@ -672,7 +676,7 @@ extends 语法会设置两个原型：
 
 例如，`Array` 和 `Date` 都继承自 `Object`，所以它们的实例都有来自 `Object.prototype` 的方法。但 `Array.[[Prototype]]` 并不指向 `Object`，所以它们没有例如 `Array.keys()`（或 `Date.keys()`）这些静态方法。
 
-![image-20230125151241315](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
 
 ### Mixin
 
@@ -684,7 +688,7 @@ extends 语法会设置两个原型：
 
 如果 Mixins 意外覆盖了现有类的方法，那么它们可能会成为一个冲突点。因此，通常应该仔细考虑 mixin 的命名方法，以最大程度地降低发生这种冲突的可能性。
 
-## 3.类的封装
+### 3.类的封装
 
 就面向对象编程（OOP）而言，内部接口与外部接口的划分被称为 [封装](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming))。
 
