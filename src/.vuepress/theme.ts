@@ -82,7 +82,6 @@ export default hopeTheme({
 
             // page meta
             metaLocales: {
-                editLink: "编辑此页",
             },
         },
     },
