@@ -2,35 +2,22 @@
 home: true
 layout: BlogHome
 icon: home
-title: 博客主页
-heroImage: 
-heroText: Etheral
+title: 
+bgImage: https://etheral.oss-cn-shanghai.aliyuncs.com/images/f7268f98c8a549b4866e94541f2a5186.png
+heroText: false
 heroFullScreen: true
-tagline: 欢迎来到我的博客！
+tagline: false
 projects:
   - icon: project
     name: 前端技术
-    desc: 
-    link: 
-
+    desc: 不仅仅是切图
+    link: https://etheral.cc/category/前端技术/
+  - icon: project
+    name: 数据结构与算法
+    desc: 让人又爱又恨
+    link: https://etheral.cc/category/数据结构与算法/
   - icon: link
-    name: 链接名称
-    desc: 链接详细描述
-    link: https://链接地址
-
-  - icon: book
-    name: 书籍名称
-    desc: 书籍详细描述
-    link: https://你的书籍链接
-
-  - icon: article
-    name: 文章名称
-    desc: 文章详细描述
-    link: https://你的文章链接
-
-  - icon: friend
-    name: 伙伴名称
-    desc: 伙伴详细介绍
-    link: https://你的伙伴链接
-
+    name: 关于
+    desc: 我与网站的故事
+    link: https://etheral.cc/category/关于/
 ---

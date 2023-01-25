@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-date: 2023-1-10
+date: 2023-1-26
 category: 
   - 前端技术
 tag:

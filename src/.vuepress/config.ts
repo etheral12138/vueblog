@@ -1,7 +1,6 @@
 import {defineUserConfig} from "vuepress";
 import {autoCatalogPlugin} from "vuepress-plugin-auto-catalog";
 import { hopeTheme } from "vuepress-theme-hope";
-// @ts-ignore
 import theme from "./theme";
 export default defineUserConfig({
     base: "/",
@@ -13,7 +12,6 @@ export default defineUserConfig({
         },
     },
     plugins: [
-        autoCatalogPlugin(),
     ],
     theme,
     shouldPrefetch: false,
