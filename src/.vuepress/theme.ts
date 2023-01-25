@@ -14,7 +14,8 @@ export default hopeTheme({
     logo: "https://etheral.oss-cn-shanghai.aliyuncs.com/images/1.png",
     fullscreen: true,
     repo: "https://github.com/etheral12138/vueblog",
-    docsDir: "docs",
+    docsDir: "src",
+    docsBranch: "master",
     blog: {
         intro: "/关于/author",
         medias: {
@@ -81,7 +82,9 @@ export default hopeTheme({
             },
 
             // page meta
-
+            metaLocales: {
+                editLink: "编辑此页",
+            },
         },
     },
 
