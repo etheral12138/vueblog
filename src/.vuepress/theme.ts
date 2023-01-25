@@ -81,8 +81,7 @@ export default hopeTheme({
             },
 
             // page meta
-            metaLocales: {
-            },
+
         },
     },
 
