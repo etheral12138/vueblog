@@ -35,16 +35,13 @@ let name = "John";
 function sayHi() {
   alert("Hi, " + name);
 }
-
 name = "Pete";
-
 sayHi(); //Pete
 ```
 
 ```javascript
 function makeWorker() {
   let name = "Pete";
-
   return function() {
     alert(name);
   };
@@ -407,7 +404,19 @@ var arr = [1,5,2,10,15];
 
 ### 7.防抖
 
-
+```javascript
+const lzqdebounce=function(fn,delay){
+    let timer=null//上一次的调用
+    const _debounce=function(...args)
+        if(timer) clearTimeout(timer)
+        timer=setTimeout(()=>{
+        fn.apply(this,args)
+        //timer=null可写可不写
+        },delay);
+    }
+    return _debounce;
+}
+```
 
 ### 8.节流
 
@@ -696,3 +705,5 @@ extends 语法会设置两个原型：
 
 - 受保护的字段以 `_` 开头。这是一个众所周知的约定，不是在语言级别强制执行的。程序员应该只通过它的类和从它继承的类中访问以 `_` 开头的字段。
 - 私有字段以 `#` 开头。JavaScript 确保我们只能从类的内部访问它们。
+
+本文参考链接:https://zh.javascript.info/
