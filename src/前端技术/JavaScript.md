@@ -15,13 +15,21 @@ tag:
 
 - 函数声明
 
-  
+```javascript
+function say(){
+  ...
+}
+say() 
+```
 
 - 函数表达式
 
-
-
-  
+```javascript
+let say=function(){
+  ...
+}
+say()
+```
 
 ### 函数特性
 
@@ -176,6 +184,14 @@ alert( Array.from(str) ); // H,e,l,l,o
 
 可见：Javascript中的this指针与Java中的this很像。
 
+但是如果你经常使用其他的编程语言，那么你可能已经习惯了“绑定 `this`”的概念，即在对象中定义的方法总是有指向该对象的 `this`。
+
+在 JavaScript 中，`this` 是“自由”的，它的值是在调用时计算出来的，它的值并不取决于方法声明的位置，而是取决于在“点符号前”的是什么对象。
+
+在运行时对 `this` 求值的这个概念既有优点也有缺点。一方面，函数可以被重用于不同的对象。另一方面，更大的灵活性造成了更大的出错的可能。
+
+这里我们的立场并不是要评判编程语言的这个设计是好是坏。而是要了解怎样使用它，如何趋利避害。
+
 ### 1.显式绑定
 
 注意，JavaScript中显示改变函数上下文的this有三种方法（即显式绑定）
@@ -308,6 +324,8 @@ sayHi();
 
 ## 二、JavaScript的常用API实现
 
+注意：平时开发时尽量使用lodash等库提供的API，以下内容在面试中可能会用到。
+
 ### 1.call
 
 
@@ -338,8 +356,6 @@ sayHi();
 - `arr.filter(inBetween(3,6))` —— 只挑选范围在 3 到 6 的值。
 
 - `arr.filter(inArray([1,2,3]))` —— 只挑选与 `[1,2,3]` 中的元素匹配的元素。
-
-  
 
 ```javascript
 function inBetween(a, b) {
@@ -402,7 +418,7 @@ var arr = [1,5,2,10,15];
    console.log(arr);
 ```
 
-### 7.防抖
+### :star::star::star:7.防抖
 
 ```javascript
 const lzqdebounce=function(fn,delay){
@@ -418,7 +434,21 @@ const lzqdebounce=function(fn,delay){
 }
 ```
 
-### 8.节流
+### :star::star::star:8.节流
+
+
+
+### :star::star:9.浅拷贝
+
+Object.assign(a,b,c,…)方法，作用是将b,c及之后的对象拷贝到a对象中。
+
+### :star::star:10.深拷贝
+
+对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
+
+简单来说，假如A对象中嵌套了B对象，那么对A进行浅拷贝将不会拷贝嵌套的B对象，而是保留对B对象的引用。我们修改A对象的拷贝的属性值时是无效的，但是修改B对象的属性值时有效。所以，深拷贝很有必要，它可以完全拷贝一个对象。
+
+### :star::star:11.事件总线
 
 
 
@@ -460,9 +490,21 @@ export User{...} //user.js
 - 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
   - `import "module"`
 
-## 四、JavaScript对象的属性配置
+## 四、JavaScript对象
 
-### 1.getter和setter
+### 对象属性
+
+#### 对象的属性配置
+
+- **`writable`** — 如果为 `true`，则值可以被修改，否则它是只可读的。
+
+- **`enumerable`** — 如果为 `true`，则会被在循环中列出，否则不会被列出。
+
+  for in 只会列举出可枚举的属性。
+
+- **`configurable`** — 如果为 `true`，则此属性可以被删除，这些特性也可以被修改，否则不可以。
+
+#### getter和setter
 
 对象的属性有两种类型。
 
@@ -522,15 +564,313 @@ user.name = ""; // Name 太短了……
 
 从技术上讲，外部代码可以使用 `user._name` 直接访问 name。但是，这儿有一个众所周知的约定，即以下划线 `"_"` 开头的属性是内部属性，不应该从对象外部进行访问。
 
-### 2.对象属性
+#### 垃圾回收（GC）
 
-- **`writable`** — 如果为 `true`，则值可以被修改，否则它是只可读的。
+- 垃圾回收是自动完成的，我们不能强制执行或是阻止执行。
+- 当对象是可达状态时，它一定是存在于内存中的。
+- 被引用与可访问（从一个根）不同：一组相互连接的对象可能整体都不可达，正如我们在上面的例子中看到的那样。
 
-- **`enumerable`** — 如果为 `true`，则会被在循环中列出，否则不会被列出。
+垃圾回收的基本算法被称为 “mark-and-sweep”。
 
-   for in 只会列举出可枚举的属性。
+定期执行以下“垃圾回收”步骤：
 
-- **`configurable`** — 如果为 `true`，则此属性可以被删除，这些特性也可以被修改，否则不可以。
+- 垃圾收集器找到所有的根，并“标记”（记住）它们。
+- 然后它遍历并“标记”来自它们的所有引用。
+- 然后它遍历标记的对象并标记 **它们的** 引用。所有被遍历到的对象都会被记住，以免将来再次遍历到同一个对象。
+- ……如此操作，直到所有可达的（从根部）引用都被访问到。
+- 没有被标记的对象都会被删除。
+
+一些优化建议：
+
+- **分代收集（Generational collection）**—— 对象被分成两组：“新的”和“旧的”。在典型的代码中，许多对象的生命周期都很短：它们出现、完成它们的工作并很快死去，因此在这种情况下跟踪新对象并将其从内存中清除是有意义的。那些长期存活的对象会变得“老旧”，并且被检查的频次也会降低。
+- **增量收集（Incremental collection）**—— 如果有许多对象，并且我们试图一次遍历并标记整个对象集，则可能需要一些时间，并在执行过程中带来明显的延迟。因此，引擎将现有的整个对象集拆分为多个部分，然后将这些部分逐一清除。这样就会有很多小型的垃圾收集，而不是一个大型的。这需要它们之间有额外的标记来追踪变化，但是这样会带来许多微小的延迟而不是一个大的延迟。
+- **闲时收集（Idle-time collection）**—— 垃圾收集器只会在 CPU 空闲时尝试运行，以减少可能对代码执行的影响。
+
+### 可选链(?.)
+
+可选链 `?.` 语法有三种形式：
+
+1. `obj?.prop` —— 如果 `obj` 存在则返回 `obj.prop`，否则返回 `undefined`。
+2. `obj?.[prop]` —— 如果 `obj` 存在则返回 `obj[prop]`，否则返回 `undefined`。
+3. `obj.method?.()` —— 如果 `obj.method` 存在则调用 `obj.method()`，否则返回 `undefined`。
+
+
+可选链 `?.` 不是一个运算符，而是一个特殊的语法结构。它还可以与函数和方括号一起使用。
+
+例如，将 `?.()` 用于调用一个可能不存在的函数。
+
+在这两行代码中，我们首先使用点符号（`userAdmin.admin`）来获取 `admin` 属性，因为我们假定对象 `userAdmin` 存在，因此可以安全地读取它。
+
+然后 `?.()` 会检查它左边的部分：如果 `admin` 函数存在，那么就调用运行它（对于 `userAdmin`）。否则（对于 `userGuest`）运算停止，没有报错。
+
+```javascript
+let userAdmin = {
+  admin() {
+    alert("I am admin");
+  }
+};
+
+let userGuest = {};
+
+userAdmin.admin?.(); // I am admin
+
+userGuest.admin?.(); // 啥都没发生（没有这样的方法）
+```
+
+如果我们想使用方括号 `[]` 而不是点符号 `.` 来访问属性，语法 `?.[]` 也可以使用。跟前面的例子类似，它允许从一个可能不存在的对象上安全地读取属性。
+
+```javascript
+let key = "firstName";
+
+let user1 = {
+  firstName: "John"
+};
+
+let user2 = null;
+
+alert( user1?.[key] ); // John
+alert( user2?.[key] ); // undefined
+```
+
+此外，我们还可以将 `?.` 跟 `delete` 一起使用：
+
+```javascript
+delete user?.name; // 如果 user 存在，则删除 user.name
+```
+
+但是可选链 `?.` 不能用在赋值语句的左侧。
+
+```javascript
+let user = null;
+user?.name = "John"; // Error，不起作用
+// 因为它在计算的是：undefined = "John"
+```
+
+#### 短路效应
+
+如果 `?.` 左边部分不存在，就会立即停止运算（“短路效应”）。
+
+因此，如果在 `?.` 的右侧有任何进一步的函数调用或操作，它们均不会执行。
+
+```javascript
+let user = null;
+let x = 0;
+
+user?.sayHi(x++); // 没有 "user"，因此代码执行没有到达 sayHi 调用和 x++
+
+alert(x); // 0，值没有增加
+```
+
+### Symbol类型
+
+根据规范，只有两种原始类型可以用作对象属性键：
+
+- 字符串类型
+- symbol 类型
+
+否则，如果使用另一种类型，例如数字，它会被自动转换为字符串。所以 `obj[1]` 与 `obj["1"]` 相同，而 `obj[true]` 与 `obj["true"]` 相同。
+
+symbol 是带有可选描述的“原始唯一值”。
+
+```javascript
+let id1 = Symbol("id");
+let id2 = Symbol("id");
+
+alert(id1 == id2); // false
+```
+
+#### **symbol 不会被自动转换为字符串**
+
+JavaScript 中的大多数值都支持字符串的隐式转换。例如，我们可以 `alert` 任何值，都可以生效。symbol 比较特殊，它不会被自动转换。
+
+如果我们真的想显示一个 symbol，我们需要在它上面调用 `.toString()`，如下所示：
+
+```javascript
+let id = Symbol("id");
+alert(id.toString()); // Symbol(id)，现在它有效了
+```
+
+或者获取 `symbol.description` 属性，只显示描述（description）：
+
+```javascript
+let id = Symbol("id");
+alert(id.description); // id
+```
+
+#### 隐藏属性
+
+symbol 允许我们创建对象的“隐藏”属性，代码的任何其他部分都不能意外访问或重写这些属性。
+
+```javascript
+let user = { // 属于另一个代码
+  name: "John"
+};
+
+let id = Symbol("id");
+
+user[id] = 1;
+
+alert( user[id] ); // 我们可以使用 symbol 作为键来访问数据
+```
+
+使用 `Symbol("id")` 作为键，比起用字符串 `"id"` 来有什么好处呢？
+
+由于 `user` 对象属于另一个代码库，所以向它们添加字段是不安全的，因为我们可能会影响代码库中的其他预定义行为。但 symbol 属性不会被意外访问到。第三方代码不会知道新定义的 symbol，因此将 symbol 添加到 `user` 对象是安全的。
+
+如果我们要在对象字面量 `{...}` 中使用 symbol，则需要使用方括号把它括起来。
+
+这是因为我们需要变量 `id` 的值作为键，而不是字符串 “id”。
+
+```javascript
+let id = Symbol("id");
+
+let user = {
+  name: "John",
+  [id]: 123 // 而不是 "id"：123
+};
+```
+
+symbol 属性不参与 `for..in` 循环。
+
+Object.keys()方法 也会忽略它们。这是一般“隐藏符号属性”原则的一部分。如果另一个脚本或库遍历我们的对象，它不会意外地访问到符号属性。
+
+相反，Object.assign()方法会同时复制字符串和 symbol 属性：
+
+```javascript
+let id = Symbol("id");
+let user = {
+  [id]: 123
+};
+
+let clone = Object.assign({}, user);
+
+alert( clone[id] ); // 123
+```
+
+这里并不矛盾，就是这样设计的。这里的想法是当我们克隆或者合并一个 object 时，通常希望 **所有** 属性被复制（包括像 `id` 这样的 symbol）。
+
+#### 全局Symbol
+
+正如我们所看到的，通常所有的 symbol 都是不同的，即使它们有相同的名字。但有时我们想要名字相同的 symbol 具有相同的实体。例如，应用程序的不同部分想要访问的 symbol `"id"` 指的是完全相同的属性。
+
+为了实现这一点，**全局symbol注册表**诞生了。我们可以在其中创建 symbol 并在稍后访问它们，它可以确保每次访问相同名字的 symbol 时，返回的都是相同的 symbol。
+
+要从注册表中读取（不存在则创建）symbol，请使用 `Symbol.for(key)`。
+
+该调用会检查全局注册表，如果有一个描述为 `key` 的 symbol，则返回该 symbol，否则将创建一个新 symbol（`Symbol(key)`），并通过给定的 `key` 将其存储在注册表中。
+
+注册表内的 symbol 被称为 **全局 symbol**。如果我们想要一个应用程序范围内的 symbol，可以在代码中随处访问 —— 这就是它们的用途。
+
+```javascript
+// 从全局注册表中读取
+let id = Symbol.for("id"); // 如果该 symbol 不存在，则创建它
+
+// 再次读取（可能是在代码中的另一个位置）
+let idAgain = Symbol.for("id");
+
+// 相同的 symbol
+alert( id === idAgain ); // true
+```
+
+我们已经看到，对于全局 symbol，`Symbol.for(key)` 按名字返回一个 symbol。相反，通过全局 symbol 返回一个名字，我们可以使用 `Symbol.keyFor(sym)`：
+
+```javascript
+// 通过 name 获取 symbol
+let sym = Symbol.for("name");
+let sym2 = Symbol.for("id");
+
+// 通过 symbol 获取 name
+alert( Symbol.keyFor(sym) ); // name
+alert( Symbol.keyFor(sym2) ); // id
+```
+
+`Symbol.keyFor` 内部使用全局 symbol 注册表来查找 symbol 的键。所以它不适用于非全局 symbol。如果 symbol 不是全局的，它将无法找到它并返回 `undefined`。
+
+也就是说，所有 symbol 都具有 `description` 属性。
+
+### 对象的转换
+
+对象到原始值的转换，是由许多期望以原始值作为值的内建函数和运算符自动调用的。
+
+这里有三种类型（hint）：
+
+- `"string"`（对于 `alert` 和其他需要字符串的操作）
+- `"number"`（对于数学运算）
+- `"default"`（少数运算符，通常对象以和 `"number"` 相同的方式实现 `"default"` 转换）
+
+转换算法是：
+
+1. 调用 `obj[Symbol.toPrimitive](hint)` 如果这个方法存在，
+2. 否则，如果 hint 是"string"
+   - 尝试调用 `obj.toString()` 或 `obj.valueOf()`，无论哪个存在。
+3. 否则，如果 hint 是"number"或者"default"
+   - 尝试调用 `obj.valueOf()` 或 `obj.toString()`，无论哪个存在。
+
+默认情况下，普通对象具有 `toString` 和 `valueOf` 方法：
+
+- `toString` 方法返回一个字符串 `"[object Object]"`。
+
+- `valueOf` 方法返回对象自身。
+
+所有这些方法都必须返回一个原始值才能工作（如果已定义）。
+
+在实际使用中，通常只实现 `obj.toString()` 作为字符串转换的“全能”方法就足够了，该方法应该返回对象的“人类可读”表示，用于日志记录或调试。 
+
+由于历史原因，如果 `toString` 或 `valueOf` 返回一个对象，则不会出现 error，但是这种值会被忽略（就像这种方法根本不存在）。这是因为在 JavaScript 语言发展初期，没有很好的 “error” 的概念。
+
+相反，`Symbol.toPrimitive` 更严格，它 **必须** 返回一个原始值，否则就会出现 error。
+
+如果 `Symbol.toPrimitive` 方法存在，则它会被用于所有 hint，无需更多其他方法。
+
+例如，这里 `user` 对象实现了它：
+
+```javascript
+let user = {
+  name: "John",
+  money: 1000,
+
+  [Symbol.toPrimitive](hint) {
+    alert(`hint: ${hint}`);
+    return hint == "string" ? `{name: "${this.name}"}` : this.money;
+  }
+};
+
+// 转换演示：
+alert(user); // hint: string -> {name: "John"}
+alert(+user); // hint: number -> 1000
+alert(user + 500); // hint: default -> 1500
+```
+
+从代码中我们可以看到，根据转换的不同，`user` 变成一个自描述字符串或者一个金额。`user[Symbol.toPrimitive]` 方法处理了所有的转换情况。
+
+#### 进一步转换
+
+我们已经知道，许多运算符和函数执行类型转换，例如乘法 `*` 将操作数转换为数字。
+
+如果我们将对象作为参数传递，则会出现两个运算阶段：
+
+1. 对象被转换为原始值（通过前面我们描述的规则）。
+
+2. 如果还需要进一步计算，则生成的原始值会被进一步转换。
+
+```javascript
+let obj = {
+  // toString 在没有其他方法的情况下处理所有转换
+  toString() {
+    return "2";
+  }
+};
+alert(obj * 2); // 4，对象被转换为原始值字符串 "2"，之后它被乘法转换为数字 2。
+```
+
+```javascript
+let obj = {
+  toString() {
+    return "2";
+  }
+};
+alert(obj + 2); // 22（"2" + 2）被转换为原始值字符串 => 级联
+```
 
 ## 五、JavaScript原型与继承
 
