@@ -64,7 +64,7 @@ let work = makeWorker();
 work(); // 会显示什么？
 ```
 
-![](D:/blog/my-docs/src/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF/assets/image-20230124162419717-1674820471259-10.png)
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230124162419717.png)
 
 所以这里的结果是 `"Pete"`。
 
@@ -180,7 +180,7 @@ alert( Array.from(str) ); // H,e,l,l,o
 
 
 
-![js](D:/blog/my-docs/src/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF/assets/js-1674820615982-13.jpg)
+![js](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
 
 可见：Javascript中的this指针与Java中的this很像。
 
@@ -1025,7 +1025,7 @@ extends 语法会设置两个原型：
 
 例如，`Array` 和 `Date` 都继承自 `Object`，所以它们的实例都有来自 `Object.prototype` 的方法。但 `Array.[[Prototype]]` 并不指向 `Object`，所以它们没有例如 `Array.keys()`（或 `Date.keys()`）这些静态方法。
 
-![](D:/blog/my-docs/src/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF/assets/image-20230125151241315-1674820632914-16.png)
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
 
 #### Mixin
 
