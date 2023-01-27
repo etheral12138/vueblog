@@ -10,7 +10,7 @@ export default hopeTheme({
         url: "https://etheral.cc",
     },
     iconAssets: "fontawesome",
-    logo: "https://etheral.oss-cn-shanghai.aliyuncs.com/images/1.png",
+    logo: "https://etheral.oss-cn-shanghai.aliyuncs.com/images/5f1ebd6e2bd03d8857ebfe5d56aa7e6caf6859a3.jpg@942w_948h_progressive.png",
     fullscreen: true,
     repo: "https://github.com/etheral12138/vueblog",
     docsDir: "src",

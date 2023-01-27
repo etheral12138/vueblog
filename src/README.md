@@ -16,6 +16,10 @@ projects:
     name: 数据结构与算法
     desc: 让人又爱又恨
     link: https://etheral.cc/category/数据结构与算法/
+  - icon: friend
+    name: 友情链接
+    desc: 拥抱开源
+    link: https://etheral.cc/友情链接/
   - icon: link
     name: 关于
     desc: 我与网站的故事
