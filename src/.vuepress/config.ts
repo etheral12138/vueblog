@@ -20,9 +20,6 @@ export default defineUserConfig({
                         assets:"iconfont"
                     }
                 },
-                rootComponents:{
-                    backToTop: true,
-                }
             },
         ),
     ],
