@@ -8,8 +8,8 @@ export const zhNavbar = navbar([
   },
   {
     text: "友情链接",
-    icon: "article",
-    link: "/Home"
+    icon: "user",
+    link: "/友情链接/友情链接"
   },
   {
     text: "关于",

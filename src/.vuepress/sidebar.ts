@@ -30,6 +30,7 @@ export const zhSidebar = sidebar({
             text: "数学",
             icon: "note",
             prefix: "数学/",
+            collapsible: true,
             children: [
                 "线性代数"
             ]
