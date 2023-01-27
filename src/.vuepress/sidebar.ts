@@ -8,6 +8,7 @@ export const zhSidebar = sidebar({
             text: "前端技术",
             icon: "note",
             prefix: "前端技术/",
+            collapsible: true,
             children: [
                 "JavaScript",
                 "TypeScript",
@@ -18,6 +19,7 @@ export const zhSidebar = sidebar({
             text: "数据结构与算法",
             icon: "note",
             prefix: "数据结构与算法/",
+            collapsible: true,
             children: [
                 "二叉树",
                 "回溯算法（DFS）",
