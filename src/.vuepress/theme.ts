@@ -5,12 +5,11 @@ import {zhSidebar} from "./sidebar";
 
 export default hopeTheme({
     hostname: "https://etheral.cc",
-
     author: {
         name: "Etheral",
         url: "https://etheral.cc",
     },
-    iconAssets: "iconfont",
+    iconAssets: "fontawesome",
     logo: "https://etheral.oss-cn-shanghai.aliyuncs.com/images/1.png",
     fullscreen: true,
     repo: "https://github.com/etheral12138/vueblog",

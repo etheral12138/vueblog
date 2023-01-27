@@ -8,7 +8,6 @@ export const zhNavbar = navbar([
   },
   {
     text: "关于",
-    icon: "friend",
     children: [
       {
         text: "关于作者",

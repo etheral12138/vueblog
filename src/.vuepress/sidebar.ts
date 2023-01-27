@@ -6,7 +6,7 @@ export const zhSidebar = sidebar({
     "/": [
         {
             text: "前端技术",
-            icon: "note",
+            icon: "link",
             prefix: "前端技术/",
             children: [
                 "JavaScript",
@@ -22,6 +22,14 @@ export const zhSidebar = sidebar({
                 "二叉树",
                 "回溯算法（DFS）",
                 "动态规划",
+            ]
+        },
+        {
+            text: "数学",
+            icon: "note",
+            prefix: "数学/",
+            children: [
+                "线性代数",
             ]
         }
     ],
