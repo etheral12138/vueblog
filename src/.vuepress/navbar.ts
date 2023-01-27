@@ -7,6 +7,11 @@ export const zhNavbar = navbar([
     link: "/Home"
   },
   {
+    text: "友情链接",
+    icon: "article",
+    link: "/Home"
+  },
+  {
     text: "关于",
     icon: "rss",
     children: [
