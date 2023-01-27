@@ -1,6 +1,7 @@
 ---
 title: JavaScript
 date: 2023-1-26
+icon: javascript
 category:
 - 前端技术
 tag:
