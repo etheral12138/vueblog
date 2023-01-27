@@ -6,7 +6,7 @@ export const zhSidebar = sidebar({
     "/": [
         {
             text: "前端技术",
-            icon: "link",
+            icon: "note",
             prefix: "前端技术/",
             children: [
                 "JavaScript",
@@ -29,7 +29,7 @@ export const zhSidebar = sidebar({
             icon: "note",
             prefix: "数学/",
             children: [
-                "线性代数",
+                "线性代数"
             ]
         }
     ],
