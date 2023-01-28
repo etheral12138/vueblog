@@ -179,8 +179,6 @@ alert( Array.from(str) ); // H,e,l,l,o
 
 首先我们来看总结图：
 
-
-
 ![js](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
 
 可见：Javascript中的this指针与Java中的this很像。
@@ -323,175 +321,7 @@ sayHi();
 
 在浏览器中，使用 `var`（而不是 `let/const`！）声明的全局函数和变量会成为全局对象的属性。
 
-## 二、JavaScript的常用API实现
-
-注意：平时开发时尽量使用lodash等库提供的API，以下内容在面试中可能会用到。
-
-### 1.call
-
-
-
-### 2.apply
-
-
-
-### 3.bind
-
-
-
-### 4.Promise.all
-
-
-
-### 5.函数筛选
-
-我们有一个内建的数组方法 `arr.filter(f)`。它通过函数 `f` 过滤元素。如果它返回 `true`，那么该元素会被返回到结果数组中。
-
-制造一系列“即用型”过滤器：
-
-- `inBetween(a, b)` —— 在 `a` 和 `b` 之间或与它们相等（包括）。
-- `inArray([...])` —— 包含在给定的数组中。
-
-用法如下所示：
-
-- `arr.filter(inBetween(3,6))` —— 只挑选范围在 3 到 6 的值。
-
-- `arr.filter(inArray([1,2,3]))` —— 只挑选与 `[1,2,3]` 中的元素匹配的元素。
-
-```javascript
-function inBetween(a, b) {
-  return function(x) {
-    return x >= a && x <= b;
-  };
-}
-
-let arr = [1, 2, 3, 4, 5, 6, 7];
-alert( arr.filter(inBetween(3, 6)) ); // 3,4,5,6
-```
-
-```javascript
-function inArray(arr) {
-  return function(x) {
-    return arr.includes(x);
-  };
-}
-
-let arr = [1, 2, 3, 4, 5, 6, 7];
-alert( arr.filter(inArray([1, 2, 10])) ); // 1,2
-```
-
-### 6.函数排序规则
-
-```javascript
-//升序排列
-var arr = [1,5,2,10,15]; 
-    //var arr = ['a','g','f','s','c'];     
-    //var arr = ['hao','an','you','to','happly','hot'];
-    function compare(value1,value2){
-        if(value1 < value2){
-            return -1;
-        }else if(value1 > value2){
-            return 1;
-        }else{
-            return 0;
-        }
-    }//return value1>value2?1:-1
-    arr.sort(compare);
-    console.log(arr)
-```
-
-```javascript
-//降序排列
-var arr = [1,5,2,10,15];
-    //var arr = ['a','g','f','s','c'];
-    //var arr = ['hao','an','you','to','happly','hot'];
- 
-    function compare(value1,value2){
-        if(value1 < value2){
-            return 1;
-        }else if(value1 > value2){
-            return -1;
-        }else {
-            return 0;
-        }
-    }//return value1<value2?1:-1
-    arr.sort(compare);
-   console.log(arr);
-```
-
-### :star::star::star:7.防抖
-
-```javascript
-const lzqdebounce=function(fn,delay){
-    let timer=null//上一次的调用
-    const _debounce=function(...args)
-        if(timer) clearTimeout(timer)
-        timer=setTimeout(()=>{
-        fn.apply(this,args)
-        //timer=null可写可不写
-        },delay);
-    }
-    return _debounce;
-}
-```
-
-### :star::star::star:8.节流
-
-
-
-### :star::star:9.浅拷贝
-
-Object.assign(a,b,c,…)方法，作用是将b,c及之后的对象拷贝到a对象中。
-
-### :star::star:10.深拷贝
-
-对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
-
-简单来说，假如A对象中嵌套了B对象，那么对A进行浅拷贝将不会拷贝嵌套的B对象，而是保留对B对象的引用。我们修改A对象的拷贝的属性值时是无效的，但是修改B对象的属性值时有效。所以，深拷贝很有必要，它可以完全拷贝一个对象。
-
-### :star::star:11.事件总线
-
-
-
-## 三、JavaScript的模块
-
-### 1.默认导出
-
-每个文件只有一个export default，所以导入时import知道要导入的是什么，可以不用写大括号。
-
-```javascript
-export default User{...} //user.js     
-=> import User from "./user.js"
-export User{...} //user.js             
-=> import {User} from "./user.js"
-```
-
-### 2.总结
-
-#### 导出
-
-- 在声明一个 class/function/… 之前：
-  - `export [default] class/function/variable ...`
-- 独立的导出：
-  - `export {x [as y], ...}`.
-- 重新导出：
-  - `export {x [as y], ...} from "module"`
-  - `export * from "module"`（不会重新导出默认的导出）。
-  - `export {default [as y]} from "module"`（重新导出默认的导出）。
-
-#### 导入
-
-- 导入命名的导出：
-  - `import {x [as y], ...} from "module"`
-- 导入默认的导出：
-  - `import x from "module"`
-  - `import {default as x} from "module"`
-- 导入所有：
-  - `import * as obj from "module"`
-- 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
-  - `import "module"`
-
-## 四、JavaScript对象
+## 二、JavaScript对象
 
 ### 对象属性
 
@@ -873,6 +703,205 @@ let obj = {
 alert(obj + 2); // 22（"2" + 2）被转换为原始值字符串 => 级联
 ```
 
+## 三、JavaScript的类
+
+### 1.静态属性与方法
+
+静态方法被用于实现属于整个类的功能。它属于类本身，与具体的类实例无关，与类本身的原型无关。
+
+在类声明中，它们都被用关键字 `static` 进行了标记。
+
+静态属性被用于当我们想要存储类级别的数据时，而不是绑定到实例。
+
+静态属性和方法是可被继承的。
+
+对于 `class B extends A`，类 `B` 的 prototype 指向了 `A`：`B.[[Prototype]] = A`。因此，如果一个字段在 `B` 中没有找到，会继续在 `A` 中查找。
+
+### 2.类的继承（extends)
+
+子类需要在继承时调用父类的 constructor，例如：
+
+```javascript
+class Rabbit extends Object {
+  constructor(name) {
+    super(); // 需要在继承时调用父类的 constructor
+    this.name = name;
+  }
+}
+let rabbit = new Rabbit("Rab");
+alert( rabbit.hasOwnProperty('name') ); // true
+```
+
+extends 语法会设置两个原型：
+
+1. 在构造函数的 `"prototype"` 之间设置原型（为了获取实例方法）。
+2. 在构造函数之间会设置原型（为了获取静态方法）。
+
+#### 内建类没有静态方法继承
+
+内建对象有它们自己的静态方法，例如 `Object.keys`，`Array.isArray` 等。
+
+如我们所知道的，原生的类互相扩展。例如，`Array` 扩展自 `Object`。
+
+通常，当一个类扩展另一个类时，静态方法和非静态方法都会被继承。
+
+但内建类却是一个例外。它们相互间不继承静态方法。
+
+例如，`Array` 和 `Date` 都继承自 `Object`，所以它们的实例都有来自 `Object.prototype` 的方法。但 `Array.[[Prototype]]` 并不指向 `Object`，所以它们没有例如 `Array.keys()`（或 `Date.keys()`）这些静态方法。
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
+
+#### Mixin
+
+*Mixin* —— 是一个通用的面向对象编程术语：一个包含其他类的方法的类。
+
+一些其它编程语言允许多重继承。JavaScript 不支持多重继承，但是可以通过将方法拷贝到原型中来实现 mixin。
+
+我们可以使用 mixin 作为一种通过添加多种行为（例如上文中所提到的事件处理）来扩充类的方法。
+
+如果 Mixins 意外覆盖了现有类的方法，那么它们可能会成为一个冲突点。因此，通常应该仔细考虑 mixin 的命名方法，以最大程度地降低发生这种冲突的可能性。
+
+### 3.类的封装
+
+就面向对象编程（OOP）而言，内部接口与外部接口的划分被称为 [封装](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming))。
+
+为了隐藏内部接口，我们使用受保护的或私有的属性：
+
+- 受保护的字段以 `_` 开头。这是一个众所周知的约定，不是在语言级别强制执行的。程序员应该只通过它的类和从它继承的类中访问以 `_` 开头的字段。
+- 私有字段以 `#` 开头。JavaScript 确保我们只能从类的内部访问它们。
+
+## 四、JavaScript的API实现
+
+注意：平时开发时尽量使用lodash等库提供的API，以下内容在面试中可能会用到。
+
+### 1.call
+
+
+
+### 2.apply
+
+
+
+### 3.bind
+
+
+
+### 4.Promise.all
+
+
+
+### 5.函数筛选
+
+我们有一个内建的数组方法 `arr.filter(f)`。它通过函数 `f` 过滤元素。如果它返回 `true`，那么该元素会被返回到结果数组中。
+
+制造一系列“即用型”过滤器：
+
+- `inBetween(a, b)` —— 在 `a` 和 `b` 之间或与它们相等（包括）。
+- `inArray([...])` —— 包含在给定的数组中。
+
+用法如下所示：
+
+- `arr.filter(inBetween(3,6))` —— 只挑选范围在 3 到 6 的值。
+
+- `arr.filter(inArray([1,2,3]))` —— 只挑选与 `[1,2,3]` 中的元素匹配的元素。
+
+```javascript
+function inBetween(a, b) {
+  return function(x) {
+    return x >= a && x <= b;
+  };
+}
+
+let arr = [1, 2, 3, 4, 5, 6, 7];
+alert( arr.filter(inBetween(3, 6)) ); // 3,4,5,6
+```
+
+```javascript
+function inArray(arr) {
+  return function(x) {
+    return arr.includes(x);
+  };
+}
+
+let arr = [1, 2, 3, 4, 5, 6, 7];
+alert( arr.filter(inArray([1, 2, 10])) ); // 1,2
+```
+
+### 6.函数排序规则
+
+```javascript
+//升序排列
+var arr = [1,5,2,10,15]; 
+    //var arr = ['a','g','f','s','c'];     
+    //var arr = ['hao','an','you','to','happly','hot'];
+    function compare(value1,value2){
+        if(value1 < value2){
+            return -1;
+        }else if(value1 > value2){
+            return 1;
+        }else{
+            return 0;
+        }
+    }//return value1>value2?1:-1
+    arr.sort(compare);
+    console.log(arr)
+```
+
+```javascript
+//降序排列
+var arr = [1,5,2,10,15];
+    //var arr = ['a','g','f','s','c'];
+    //var arr = ['hao','an','you','to','happly','hot'];
+ 
+    function compare(value1,value2){
+        if(value1 < value2){
+            return 1;
+        }else if(value1 > value2){
+            return -1;
+        }else {
+            return 0;
+        }
+    }//return value1<value2?1:-1
+    arr.sort(compare);
+   console.log(arr);
+```
+
+### :star::star::star:7.防抖
+
+```javascript
+const lzqdebounce=function(fn,delay){
+    let timer=null//上一次的调用
+    const _debounce=function(...args)
+        if(timer) clearTimeout(timer)
+        timer=setTimeout(()=>{
+        fn.apply(this,args)
+        //timer=null可写可不写
+        },delay);
+    }
+    return _debounce;
+}
+```
+
+### :star::star::star:8.节流
+
+
+
+### :star::star:9.浅拷贝
+
+Object.assign(a,b,c,…)方法，作用是将b,c及之后的对象拷贝到a对象中。
+
+### :star::star:10.深拷贝
+
+对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
+
+简单来说，假如A对象中嵌套了B对象，那么对A进行浅拷贝将不会拷贝嵌套的B对象，而是保留对B对象的引用。我们修改A对象的拷贝的属性值时是无效的，但是修改B对象的属性值时有效。所以，深拷贝很有必要，它可以完全拷贝一个对象。
+
+### :star::star:11.事件总线
+
+
+
+- - 
+
 ## 五、JavaScript原型与继承
 
 ### 1.原型（prototype）
@@ -980,71 +1009,54 @@ alert( [...range] ); // 1,2,3,4,5
 - 在 generator（仅在）内部，存在 `yield` 操作。
 - 外部代码和 generator 可能会通过 `next/yield` 调用交换结果。
 
-## 七、JavaScript的类
+## 七、JavaScript的模块
 
-### 1.静态属性与方法
+### 1.默认导出
 
-静态方法被用于实现属于整个类的功能。它属于类本身，与具体的类实例无关，与类本身的原型无关。
-
-在类声明中，它们都被用关键字 `static` 进行了标记。
-
-静态属性被用于当我们想要存储类级别的数据时，而不是绑定到实例。
-
-静态属性和方法是可被继承的。
-
-对于 `class B extends A`，类 `B` 的 prototype 指向了 `A`：`B.[[Prototype]] = A`。因此，如果一个字段在 `B` 中没有找到，会继续在 `A` 中查找。
-
-### 2.类的继承（extends)
-
-子类需要在继承时调用父类的 constructor，例如：
+每个文件只有一个export default，所以导入时import知道要导入的是什么，可以不用写大括号。
 
 ```javascript
-class Rabbit extends Object {
-  constructor(name) {
-    super(); // 需要在继承时调用父类的 constructor
-    this.name = name;
-  }
-}
-let rabbit = new Rabbit("Rab");
-alert( rabbit.hasOwnProperty('name') ); // true
+export default User{...} //user.js     
+=> import User from "./user.js"
+export User{...} //user.js             
+=> import {User} from "./user.js"
 ```
 
-extends 语法会设置两个原型：
+### 2.总结
 
-1. 在构造函数的 `"prototype"` 之间设置原型（为了获取实例方法）。
-2. 在构造函数之间会设置原型（为了获取静态方法）。
+#### 导出
 
-#### 内建类没有静态方法继承
+- 在声明一个 class/function/… 之前：
+  - `export [default] class/function/variable ...`
+- 独立的导出：
+  - `export {x [as y], ...}`.
+- 重新导出：
+  - `export {x [as y], ...} from "module"`
+  - `export * from "module"`（不会重新导出默认的导出）。
+  - `export {default [as y]} from "module"`（重新导出默认的导出）。
 
-内建对象有它们自己的静态方法，例如 `Object.keys`，`Array.isArray` 等。
+#### 导入
 
-如我们所知道的，原生的类互相扩展。例如，`Array` 扩展自 `Object`。
+- 导入命名的导出：
+  - `import {x [as y], ...} from "module"`
+- 导入默认的导出：
+  - `import x from "module"`
+  - `import {default as x} from "module"`
+- 导入所有：
+  - `import * as obj from "module"`
+- 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
+  - `import "module"`
 
-通常，当一个类扩展另一个类时，静态方法和非静态方法都会被继承。
+## 八、JavaScript语法糖
 
-但内建类却是一个例外。它们相互间不继承静态方法。
+### 1.解构赋值
 
-例如，`Array` 和 `Date` 都继承自 `Object`，所以它们的实例都有来自 `Object.prototype` 的方法。但 `Array.[[Prototype]]` 并不指向 `Object`，所以它们没有例如 `Array.keys()`（或 `Date.keys()`）这些静态方法。
+```javascript
+let [firstName, surname] = "John Smith".split(' ');
+alert(firstName); // John
+alert(surname);  // Smith
+```
 
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230125151241315.png)
 
-#### Mixin
-
-*Mixin* —— 是一个通用的面向对象编程术语：一个包含其他类的方法的类。
-
-一些其它编程语言允许多重继承。JavaScript 不支持多重继承，但是可以通过将方法拷贝到原型中来实现 mixin。
-
-我们可以使用 mixin 作为一种通过添加多种行为（例如上文中所提到的事件处理）来扩充类的方法。
-
-如果 Mixins 意外覆盖了现有类的方法，那么它们可能会成为一个冲突点。因此，通常应该仔细考虑 mixin 的命名方法，以最大程度地降低发生这种冲突的可能性。
-
-### 3.类的封装
-
-就面向对象编程（OOP）而言，内部接口与外部接口的划分被称为 [封装](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming))。
-
-为了隐藏内部接口，我们使用受保护的或私有的属性：
-
-- 受保护的字段以 `_` 开头。这是一个众所周知的约定，不是在语言级别强制执行的。程序员应该只通过它的类和从它继承的类中访问以 `_` 开头的字段。
-- 私有字段以 `#` 开头。JavaScript 确保我们只能从类的内部访问它们。
 
 本文参考链接:https://zh.javascript.info/

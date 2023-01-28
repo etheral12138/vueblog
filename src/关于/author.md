@@ -1,6 +1,7 @@
 ---
 title: 关于作者
 date: 2023-1-25
+sidebar: false
 category:
 - 关于
 tag:
