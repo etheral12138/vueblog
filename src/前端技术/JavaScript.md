@@ -713,7 +713,7 @@ alert(obj + 2); // 22（"2" + 2）被转换为原始值字符串 => 级联
 
 注意区别：
 
-![image-20230128163929850](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230128163929850.png)
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230128163929850.png)
 
 第一个区别是，对于对象我们使用的调用语法是 `Object.keys(obj)`，而不是 `obj.keys()`。
 
