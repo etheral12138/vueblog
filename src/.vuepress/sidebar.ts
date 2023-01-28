@@ -1,8 +1,10 @@
 import {sidebar} from "vuepress-theme-hope";
 import {about} from "./sidebar/about";
+import {link} from "./sidebar/link";
 export const zhSidebar = sidebar({
     // 应该把更精确的路径放置在前边
     "/关于/": about,
+    "/友情链接/": link,
     "/": [
         {
             text: "前端技术",
