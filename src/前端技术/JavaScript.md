@@ -258,7 +258,7 @@ console.log(add1()); // 执行新的函数，输出 6
 
 ### 闭包
 
-[闭包](https://en.wikipedia.org/wiki/Closure_(computer_programming)) 是指一个函数可以记住其外部变量并可以访问这些变量。在某些编程语言中，这是不可能的，或者应该以一种特殊的方式编写函数来实现。但在 JavaScript 中，所有函数都是天生闭包的（只有一个例外，）。
+[闭包](https://en.wikipedia.org/wiki/Closure_(computer_programming)) 是指一个函数可以记住其外部变量并可以访问这些变量。在某些编程语言中，这是不可能的，或者应该以一种特殊的方式编写函数来实现。但在 JavaScript 中，所有函数都是天生闭包的（只有一个例外，通过new Function语创建的函数，该函数的 `[[Environment]]` 并不指向当前的词法环境，而是指向全局环境）。
 
 也就是说：JavaScript 中的函数会自动通过隐藏的 `[[Environment]]` 属性记住创建它们的位置，所以它们都可以访问外部变量。
 
@@ -1398,3 +1398,7 @@ alert( user.friends[1] ); // 1
 - 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
 
 本文参考链接:https://zh.javascript.info/
+$$
+\quad y=0.1377845a+2.730484b+8.303849c-3.555519d+67.60868
+$$
+
