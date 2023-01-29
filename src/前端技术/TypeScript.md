@@ -42,7 +42,7 @@ let info :IKun&ICoder={
 
 
 
-#### 非空类型断言
+#### 非空类型断言(!)
 
 
 
@@ -56,21 +56,48 @@ let info :IKun&ICoder={
 
 #### 函数表达式
 
-
-
 ```typescript
 type fntype=(num1:number,num2:number)=>number
 ```
 
+上面的代码中定义了一个函数类型为`fntype`，其中返回值为number类型，参数num1和num2都是number类型。
 
+然而函数类型表达式并不能支持声明属性；如果我们想描述一个带有属性的函数，我们可以在一个对象类型中写一个调用签名（call signature）。
 
 #### 调用签名
 
+```typescript
+interface fntype{
+   name:"string",
+   (num1:number,num2:number):void //调用签名
+}
+function(fn:fntype){
+    console.log(fn.name);
+    fn(10,20)
+}
+```
 
+与函数表达式的区别在于，返回值类型前的箭头改为了冒号。
 
 #### 构造签名
 
+```typescript
+class Person {
+}
 
+interface ICTORPerson {
+  new (): Person
+}
+
+function factory(fn: ICTORPerson) {
+  const f = new fn()
+  return f
+}
+
+factory(Person)
+```
+
+在调用签名前加上new关键字，就成为了构造签名。
 
 #### 重载签名
 
@@ -139,4 +166,14 @@ interface只可用于描述对象的类型，type可用于描述对象，数组�
 但是type有其局限性，比如：不能重复声明同一个类型。interface可以多次声明。
 
 ## 3.TypeScript的类
+
+### 类的成员修饰符
+
+ **在TypeScript中，类的属性和方法支持三种修饰符： public、private、protected**
+
+` public `修饰的是在任何地方可见、公有的属性或方法，是默认修饰符；
+
+` private` 修饰的是仅在同一类中可见、私有的属性或方法；
+
+`protected` 修饰的是仅在类自身及子类中可见、受保护的属性或方法；
 

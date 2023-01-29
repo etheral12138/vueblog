@@ -1397,8 +1397,16 @@ alert( user.friends[1] ); // 1
 - 这两种方法都支持用于智能读/写的转换函数。
 - 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
 
-本文参考链接:https://zh.javascript.info/
-$$
-\quad y=0.1377845a+2.730484b+8.303849c-3.555519d+67.60868
-$$
+## 九、JSX语法扩展
+
+[JSX (opens new window)](https://facebook.github.io/jsx/)是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因[React (opens new window)](https://reactjs.org/)框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
+
+想要使用JSX必须做两件事：
+
+1. 给文件一个`.tsx`扩展名
+2. 启用`jsx`选项
+
+本文参考链接:https://zh.javascript.info/，https://ts.yayujs.com/
+
+
 
