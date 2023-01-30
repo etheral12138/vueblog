@@ -138,7 +138,50 @@ this的默认类型是any类型
 
 
 
+### 对象类型
 
+#### 索引签名
+
+```typescript
+interface ICollection {
+  // 索引签名
+  [index: string]: number
+
+  length: number
+}
+// 1.索引签名的理解
+// interface InfoType {
+//   // 索引签名: 可以通过字符串索引, 去获取到一个值, 也是字符串
+//   [key: string]: string
+// }
+// function getInfo(): InfoType {
+//   const abc: any = "hahah"
+//   return abc
+// }
+
+// const info = getInfo()
+// const name = info["name"]
+// console.log(name, info.age, info.address)
+```
+
+
+
+```typescript
+interface IIndexType {
+  [bbb: string]: any
+}
+
+const nums: IIndexType = ["abc", "cba", "nba"]
+// 通过数字类型访问索引时, 最终都是转化成string类型访问
+const num1 = nums[0]
+console.log(num1)
+```
+
+### 类型检测
+
+第一次创建的对象字面量, 称之为fresh(新鲜的)
+
+对于新鲜的字面量, 会进行严格的类型检测. 必须完全满足类型的要求(不能有多余的属性)
 
 ## 2.TypeScript的接口
 
@@ -165,6 +208,33 @@ interface只可用于描述对象的类型，type可用于描述对象，数组�
 
 但是type有其局限性，比如：不能重复声明同一个类型。interface可以多次声明。
 
+### 接口的继承
+
+```typescript
+interface IPerson {
+  name: string
+  age: number
+}
+interface IKun extends IPerson {
+  slogan: string
+}
+const ikun: IKun = {
+  name: "kun",
+  age: 18,
+  slogan: "你干嘛, 哎呦"
+}
+```
+
+可以从其他的接口中继承过来属性
+
+减少了相同代码的重复编写
+
+如果使用第三库, 给我们定义了一些属性
+
+自定义一个接口, 同时你希望自定义接口拥有第三方某一个类型中所有的属性
+
+可以使用继承来完成
+
 ## 3.TypeScript的类
 
 ### 类的成员修饰符
@@ -176,4 +246,85 @@ interface只可用于描述对象的类型，type可用于描述对象，数组�
 ` private` 修饰的是仅在同一类中可见、私有的属性或方法；
 
 `protected` 修饰的是仅在类自身及子类中可见、受保护的属性或方法；
+
+修饰符也可用于修饰参数属性。
+
+```typescript
+class Person {
+  // 语法糖
+  constructor(public name: string, private _age: number, readonly height: number) {
+  }
+
+  running() {
+    console.log(this._age, "eating")
+  }
+}
+const p = new Person("owen", 18, 1.88)
+console.log(p.name, p.height)
+```
+
+
+
+### getter/setter
+
+TS中的类和JS中一样，有自己的getter/setter
+
+```typescript
+class Person {
+  // 私有属性: 属性前面会使用_
+  private _name: string
+  private _age: number
+
+  constructor(name: string, age: number) {
+    this._name = name
+    this._age = age
+  }
+
+  running() {
+    console.log("running:", this._name)
+  }
+
+  // setter/getter: 对属性的访问进行拦截操作
+  set name(newValue: string) {
+    this._name = newValue
+  }
+
+  get name() {
+    return this._name
+  }
+
+
+  set age(newValue: number) {
+    if (newValue >= 0 && newValue < 200) {
+      this._age = newValue
+    }
+  }
+
+  get age() {
+    return this._age
+  }
+}
+const p = new Person("owen", 100)
+p.name = "kobe"
+console.log(p.name)
+
+p.age = -10
+console.log(p.age)
+```
+
+### 抽象类
+
+```typescript
+abstract class Shape {
+  // getArea方法只有声明没有实现体
+  // 实现让子类自己实现
+  // 可以将getArea方法定义为抽象方法: 在方法的前面加abstract
+  // 抽象方法必须出现在抽象类中, 类前面也需要加abstract
+  abstract getArea()
+}
+```
+
+**抽象类不能实例化。**
+
+## 4.TypeScript泛型编程
 

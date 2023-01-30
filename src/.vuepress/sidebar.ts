@@ -23,7 +23,7 @@ export const zhSidebar = sidebar({
             children: [
                 "二叉树",
                 "回溯算法（DFS）",
-                "动态规划",
+                "动态规划"
             ]
         },
         {
@@ -33,6 +33,15 @@ export const zhSidebar = sidebar({
             collapsible: true,
             children: [
                 "线性代数"
+            ]
+        },
+        {
+            text: "计算机基础",
+            icon: "note",
+            prefix: "计算机基础/",
+            collapsible: true,
+            children: [
+                "计算机网络"
             ]
         }
     ],
