@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-date: 2023-1-31
+date: 2023-1-30
 icon: typescript
 category: 
   - 前端技术
