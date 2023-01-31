@@ -1400,7 +1400,11 @@ alert( user.friends[1] ); // 1
 1. 给文件一个`.tsx`扩展名
 2. 启用`jsx`选项
 
-> 本文参考链接:https://zh.javascript.info/，https://ts.yayujs.com/
+> 本文参考链接:
+>
+> https://zh.javascript.info/ 
+>
+> https://ts.yayujs.com/
 
 
 
