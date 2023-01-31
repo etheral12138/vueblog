@@ -16,6 +16,14 @@ projects:
     name: 数据结构与算法
     desc: 让人又爱又恨
     link: https://etheral.cc/category/数据结构与算法/
+  - icon: project
+    name: 计算机基础
+    desc: 从零开始
+    link: https://etheral.cc/category/计算机基础/
+  - icon: project
+    name: 数学
+    desc: 学校课程之外
+    link: https://etheral.cc/category/数学/
   - icon: friend
     name: 友情链接
     desc: 拥抱开源
