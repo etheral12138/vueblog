@@ -144,7 +144,7 @@ tag:
 
 
 
-语法糖：可以在<script>标签中加上`setup`的`attribute`
+语法糖：可以在`<script>`标签中加上`setup`的`attribute`
 
 ```vue
 <script setup>
