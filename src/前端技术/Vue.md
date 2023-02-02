@@ -13,7 +13,7 @@ tag:
 
 ## Vue
 
-![computeddrawio.png](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e5a4743015fb4e02be7460893fc0bdbe~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.webp)
+![Vue的流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e5a4743015fb4e02be7460893fc0bdbe~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.webp)
 
 Vue是一种渐进式JavaScript框架。
 
