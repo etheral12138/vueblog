@@ -22,6 +22,7 @@ export default defineUserConfig({
                 },
                 rootComponents: {
                     backToTop: true,
+                    // addThis:"ra-63dc12199f1d32ff"
                 }
             },
         ),
