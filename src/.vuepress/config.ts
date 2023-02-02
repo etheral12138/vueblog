@@ -1,7 +1,7 @@
 import {defineUserConfig} from "vuepress";
 import theme from "./theme";
 import {componentsPlugin} from "vuepress-plugin-components";
-import {searchProPlugin} from "vuepress-plugin-search-pro";
+import {docsearchPlugin} from "@vuepress/plugin-docsearch";
 export default defineUserConfig({
     base: "/",
     locales: {
@@ -24,17 +24,12 @@ export default defineUserConfig({
                 }
             },
         ),
-        searchProPlugin({
-            // 索引全部内容
-            indexContent: true,
-            // 为分类和标签添加索引
-            // customFields: [
-            //     {
-            //         name: "标签",
-            //         getter: (page) => page.frontmatter.tag,
-            //         formatter: "标签：$content",
-            //     },
-            // ],
+        docsearchPlugin({
+            apiKey: "d9bd0d6112b4d1f34d32bc7f58fb9c3b",
+            appId: "4HTLIER5EQ",
+            indexName: "etheral",
+            // disableUserPersonalization: true,
+            placeholder: "搜索文章",
         }),
     ],
     head: [

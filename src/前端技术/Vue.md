@@ -11,6 +11,12 @@ tag:
 
 
 
+## Vue
+
+![computeddrawio.png](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e5a4743015fb4e02be7460893fc0bdbe~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.webp)
+
+Vue是一种渐进式JavaScript框架。
+
 ## Vue2
 
 ### 组件属性
@@ -30,7 +36,7 @@ tag:
     <counter :modelValue="appCounter" @update:modelValue="appCounter = $event"></counter>
     
     <!-- 3.组件的v-model: 自定义名称counter -->
-   <counter2 v-model:counter="appCounter" v-model:why="appWhy"></counter2>
+   <counter2 v-model:counter="appCounter" v-model:etheral="app"></counter2>
   </div>
 </template>
 
@@ -46,7 +52,7 @@ tag:
       return {
         message: "Hello World",
         appCounter: 100,
-        appWhy: "coderwhy"
+        app: "etheral"
       }
     }
   }
@@ -81,13 +87,13 @@ tag:
         default: ""
       }
     },
-    emits: ["update:counter", "update:why"],
+    emits: ["update:counter", "update:etheral"],
     methods: {
       changeCounter() {
         this.$emit("update:counter", 999)
       },
       changeWhy() {
-        this.$emit("update:why", "kobe")
+        this.$emit("update:etheral", "owen")
       }
     }
   }
@@ -523,7 +529,43 @@ export default{
 </script>
 ```
 
+### 动画
 
+
+
+### Teleport
+
+```vue
+<template>
+  <div class="app">
+    <div class="hello">
+      <p class="content">
+        <!-- <teleport to="body">
+          <hello-world/>
+        </teleport> -->
+        <teleport to="#abc">
+          <hello-world/>
+        </teleport>
+      </p>
+    </div>
+    <div class="content">
+      <teleport to="#abc">
+        <h2>哈哈哈哈哈</h2>
+      </teleport>
+    </div>
+  </div>
+</template>
+```
+
+它是一个Vue提供的内置组件，类似于react的Portals。
+
+被teleport的DOM元素将渲染在指定选择器所在的元素上。在组件化开发中，我们**封装一个组件A**，在**另外一个组件B中使用**：那么组件A中template的元素，会被挂载到组件B中template的某个位置；最终我们的应用程序会形成**一颗DOM树结构**。
+
+但是某些情况下，我们希望**组件不是挂载在这个组件树上**的，可能是**移动到Vue app之外的其他位置**：比如移动到body元素上，或者我们有其他的div#app之外的元素上；这个时候我们就可以通过teleport来完成。
+
+我们可以在 teleport 中使用组件，并且也可以传入一些数据。
+
+如果我们将**多个teleport应用**到**同一个目标上（to的值相同）**，那么这些**目标会进行合并**。
 
 ## Vue3
 
@@ -600,7 +642,7 @@ export default function useCounter() {
 <template>
   <div>AppContent: {{ message }}</div>
   <button @click="changeMessage">修改message</button>
-  <show-info name="why" 
+  <show-info name="etheral" 
              :age="18"
              @info-btn-click="infoBtnClick"
              ref="showInfoRef">
@@ -619,7 +661,7 @@ export default function useCounter() {
 
   // 3.定义绑定的函数
   function changeMessage() {
-    message.value = "你好啊, 李银河!"
+    message.value = "hello!"
   }
 
   function infoBtnClick(payload) {
@@ -683,18 +725,18 @@ defineExpose({
       // 缺点: 数据不是响应式的
       let message = "Hello World"
       function changeMessage() {
-        message = "你好啊,李银河!"
+        message = "hello!"
         console.log(message)
       }
 
       // 2.定义响应式数据
       // 2.1.reactive函数: 定义复杂类型的数据
       const account = reactive({
-        username: "coderwhy",
+        username: "etheral",
         password: "123456"
       })
       function changeAccount() {
-        account.username = "kobe"
+        account.username = "owen"
       }
 
       // 2.2.ref函数: 定义简单类型的数据(也可以定义复杂类型的数据)
@@ -746,16 +788,16 @@ defineExpose({
       // 1.1.条件一: reactive应用于本地的数据
       // 1.2.条件二: 多个数据之间是有关系/联系(聚合的数据, 组织在一起会有特定的作用)
       const account = reactive({
-        username: "coderwhy",
-        password: "1234567"
+        username: "etheral",
+        password: "123456"
       })
-      const username = ref("coderwhy")
+      const username = ref("etheral")
       const password = ref("123456")
       // 2.ref的应用场景: 其他的场景基本都用ref(computed)
       // 2.1.定义本地的一些简单数据
       const message = ref("Hello World")
       const counter = ref(0)
-      const name = ref("why")
+      const name = ref("etheral")
       const age = ref(18)
       // 2.定义从网络中获取的数据也是使用ref
       // const musics = reactive([])
@@ -792,9 +834,8 @@ defineExpose({
       // 本地定义多个数据, 都需要传递给子组件
       // name/age/height
       const info = reactive({
-        name: "why",
-        age: 18,
-        height: 1.88
+        name: "etheral",
+        age: 18
       })
 
       function changeInfoName(payload) {
@@ -874,13 +915,13 @@ defineExpose({
   export default {
     setup() {
         const info = reactive({
-          name: "why",
+          name: "etheral",
           age: 18,
-          height: 1.88
+          sex: male
         })
         // reactive被解构后会变成普通的值, 失去响应式
         const { name, age } = toRefs(info)
-        const height = toRef(info, "height")
+        const sex = toRef(info, "sex")
         return {
           name,
           age,
@@ -1077,7 +1118,7 @@ import { reactive, computed, ref } from 'vue'
 </script>
 //子组件
 <template>
-  <div>ShowInfo: {{ name }}-{{ age }}-{{ height }} </div>
+  <div>ShowInfo: {{ name }}-{{ age }}-{{ sex }} </div>
 </template>
 <script>
   import { inject } from 'vue'
@@ -1087,7 +1128,7 @@ import { reactive, computed, ref } from 'vue'
     setup() {
       const name = inject("name")
       const age = inject("age")
-      const height = inject("height", 1.88)
+      const sex = inject("sex", male)
       return {
         name,
         age,
@@ -1114,7 +1155,7 @@ import { reactive, computed, ref } from 'vue'
   export default {
     setup() {
       const counter = ref(0)
-      const name = ref("why")
+      const name = ref("etheral")
       // watch(counter, (newValue, oldValue) => {})
       // 1.watchEffect传入的函数默认会直接被执行
       // 2.在执行的过程中, 会自动的收集依赖(依赖哪些响应式的数据)
@@ -1177,6 +1218,41 @@ import { reactive, computed, ref } from 'vue'
   }
 </script>
 ```
+
+### Suspense组件
+
+```vue
+<template>
+  <div class="app">
+    <suspense>
+      <template #default>
+        <async-home/>
+      </template>
+      <template #fallback>
+        <h2>Loading</h2>
+      </template>
+    </suspense>
+  </div>
+</template>
+
+<script setup>
+import { defineAsyncComponent } from 'vue';
+
+const AsyncHome = defineAsyncComponent(() => import("./AsyncHome.vue"))
+
+</script>
+```
+
+Suspense组件等待异步组件时渲染一些额外内容，让应用有更好的用户体验，相当于2个插槽，其中第1个插槽用于展示真正想展示的内容，而第2个插槽用来展示内容还没加载出来时候的替代展示内容。
+
+其中：插槽的2个名字不可以修改，只能为：v-slot:default和v-slot:fallback
+
+
+
+
+
+
+
 
 ## Vue-Router
 
@@ -1462,3 +1538,683 @@ export default{
 使用push的特点是压入一个新的页面，那么在用户点击返回时，上一个页面还可以回退，但是如果我们希望当前页面是一个替换操作，那么可以使用replace
 
 ![replace的两种写法](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230201224829333.png)
+
+### 路由守卫
+
+
+
+## Pinia
+
+Pinia可以取代Vuex作为全局状态管理库。
+
+ 相比Vuex,mutations 不再存在，在store中，无论是在**getter 或 actions中**，都可以**直接通过this(代表store实例）来直接修改state中的数据**。提供更友好的TypeScript支持，不再有modules的嵌套结构，不再有命名空间的概念了。你可以灵活使用每一个store，它们是通过扁平化的方式来相互使用的。
+
+  **注：在pinia里，扁平化定义多个store即可，store与store之间直接通过import引入，相互调用即可。**
+
+```javascript
+//main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import pinia from './stores'
+createApp(App).use(pinia).mount('#app')
+```
+
+在主入口js中引入
+
+
+```javascript
+//../store/index.js
+import { createPinia } from 'pinia'
+
+const pinia = createPinia()
+
+export default pinia
+```
+
+在index.js中创建pinia实例
+
+```javascript
+// 定义关于counter的store
+import { defineStore } from 'pinia'
+
+import useUser from './user'
+
+const useCounter = defineStore("counter", {
+  state: () => ({
+    count: 99,
+    friends: [
+      { id: 111, name: "why" },
+      { id: 112, name: "kobe" },
+      { id: 113, name: "james" },
+    ]
+  }),//存储状态
+  getters: {
+    // 1.基本使用
+    doubleCount(state) {
+      return state.count * 2
+    },
+    // 2.一个getter引入另外一个getter
+    doubleCountAddOne() {
+      // this是store实例
+      return this.doubleCount + 1
+    },
+    // 3.getters也支持返回一个函数
+    getFriendById(state) {
+      return function(id) {
+        for (let i = 0; i < state.friends.length; i++) {
+          const friend = state.friends[i]
+          if (friend.id === id) {
+            return friend
+          }
+        }
+      }
+    },
+    // 4.getters中用到别的store中的数据
+    showMessage(state) {
+      // 1.获取user信息
+      const userStore = useUser()
+
+      // 2.获取自己的信息
+
+      // 3.拼接信息
+      return `name:${userStore.name}-count:${state.count}`
+    }
+  },//存储函数
+  actions: {
+    increment() {
+      this.count++
+    },
+    incrementNum(num) {
+      this.count += num
+    }
+  }
+})
+export default useCounter
+```
+
+在counter.js中定义store，导出函数
+
+`actions`中的方法可以是异步的
+
+```vue
+<template>
+  <div class="home">
+    <h2>Home View</h2>
+    <h2>count: {{ counterStore.count }}</h2>
+    <h2>count: {{ count }}</h2>
+    <button @click="incrementCount">count+1</button>
+  </div>
+</template>
+
+<script setup>
+  import { toRefs } from 'vue'
+  import { storeToRefs } from 'pinia'
+  import useCounter from '@/stores/counter';
+
+  const counterStore = useCounter()
+
+  // const { count } = toRefs(counterStore)
+  const { count } = storeToRefs(counterStore)
+  function incrementCount() {
+    counterStore.count++
+  }
+</script>
+```
+
+在组件中引入，数据在解构赋值时会失去响应性，Pinia提供了`storeToRefs`方法将数据变为响应式，也可以使用原生的`toRefs`方法。
+
+## Axios
+
+### 原生操作
+
+```javascript
+//记得在main.js中引入
+import axios from 'axios'
+//发送request请求
+axios.request({
+  url: "http://xxx...",
+  method: "get"
+}).then(res => {
+  console.log("res:", res.data)
+})
+//发送post请求
+ axios.post("http://xxx...", {
+  name: "coderwhy",
+   password: 123456
+ }).then(res => {
+   console.log("res", res.data)
+})
+//baseURL
+const baseURL = "http://xxx..."
+// 给axios实例配置公共的基础配置
+axios.defaults.baseURL = baseURL
+axios.defaults.timeout = 10000
+axios.defaults.headers = {}
+// axios发送多个请求
+// Promise.all
+axios.all([
+  axios.get("/home/multidata"),
+  axios.get("http://123.207.32.32:9001/lyric?id=500665346")
+]).then(res => {
+  console.log("res:", res)
+})
+// axios默认库提供给我们的实例对象
+axios.get("http://123.207.32.32:9001/lyric?id=500665346")
+
+// 创建其他的实例发送网络请求
+const instance1 = axios.create({
+  baseURL: "http://xxx...",
+  timeout: 6000,
+  headers: {}
+})
+instance1.get("/lyric", {
+  params: {
+    id: 500665346
+  }
+}).then(res => {
+  console.log("res:", res.data)
+})
+const instance2 = axios.create({
+  baseURL: "http://xxx...",
+  timeout: 10000,
+  headers: {}
+})
+// 对实例配置拦截器
+axios.interceptors.request.use((config) => {
+  console.log("请求成功的拦截")
+  // 1.开始loading的动画
+  // 2.对原来的配置进行一些修改
+  // 2.1. header
+  // 2.2. 认证登录: token/cookie
+  // 2.3. 请求参数进行某些转化
+  return config
+}, (err) => {
+  console.log("请求失败的拦截")
+  return err
+})
+axios.interceptors.response.use((res) => {
+  console.log("响应成功的拦截")
+  // 1.结束loading的动画
+  // 2.对数据进行转化, 再返回数据
+  return res.data
+}, (err) => {
+  console.log("响应失败的拦截:", err)
+  return err
+})
+axios.get("http://xxx...").then(res => {
+  console.log("res:", res)
+}).catch(err => {
+  console.log("err:", err)
+})
+```
+
+### 二次封装
+
+
+
+## 自定义指令
+
+### 基本使用
+
+```vue
+<template>
+  <div class="app">
+    <!-- <input type="text" ref="inputRef"> -->
+    <input type="text" v-focus>
+  </div>
+</template>
+<script setup>
+1.方式一: 定义ref绑定到input中, 调用focus
+import useInput from "./hooks/useInput"
+const { inputRef } = useInput()
+2.方式二: 自定义指令(局部指令)
+const vFocus = {
+  // 生命周期的函数(自定义指令)
+  mounted(el) {
+    // console.log("v-focus应用的元素被挂载了", el)
+    el?.focus()
+  }
+}
+</script>
+```
+
+```javascript
+//focus.js
+export default function directiveFocus(app) {
+  app.directive("focus", {
+    // 生命周期的函数(自定义指令)
+    mounted(el) {
+      // console.log("v-focus应用的元素被挂载了", el)
+      el?.focus()
+    }
+  })
+}
+//unit.js
+export default function directiveUnit(app) {
+  app.directive("unit", {
+    mounted(el, bindings) {
+      const defaultText = el.textContent
+      let unit = bindings.value
+      if (!unit) {
+        unit = "¥"
+      }
+      el.textContent = unit + defaultText
+    }
+  })
+}
+//index.js
+import directiveFocus from "./focus"
+import directiveUnit from "./unit"
+export default function directives(app) {
+  directiveFocus(app)
+  directiveUnit(app)
+}
+//在main.js中引入
+import directives from "./01_自定义指令/directives/index"
+createApp(App).use(directives).mount("#app")
+```
+
+
+
+### 生命周期
+
+```vue
+<template>
+  <div class="app">
+    <button @click="counter++">+1</button>
+    <button @click="showTitle = false">隐藏</button>
+    <h2 v-if="showTitle" class="title" v-etheral>当前计数: {{ counter }}</h2>
+  </div>
+</template>
+<script setup>
+import { ref } from 'vue';
+const counter = ref(0)
+const showTitle = ref(true)
+const vetheral = {
+  created() {
+    console.log("created")
+  },
+  beforeMount() {
+    console.log("beforeMount")
+  },
+  mounted() {
+    console.log("mounted")
+  },
+  beforeUpdate() {
+    console.log("beforeUpdate")
+  },
+  updated() {
+    console.log("updated")
+  },
+  beforeUnmount() {
+    console.log("beforeUnmount")
+  },
+  unmounted() {
+    console.log("unmounted")
+  }
+}
+</script>
+```
+
+### 参数修饰符（bindings)
+
+```vue
+<template>
+  <div class="app">
+    <button @click="counter++">+1</button>
+
+    <!-- 1.参数-修饰符-值 -->
+    <!-- <h2 v-etheral:kobe.abc.cba="message">哈哈哈哈</h2> -->
+
+    <!-- 2.价格拼接单位符号 -->
+    <h2 v-unit> {{ 111 }} </h2>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const counter = ref(0)
+
+const message = 'hello'
+
+const vetheral = {
+  mounted(el, bindings) {
+    console.log(bindings)
+    el.textContent = bindings.value
+  }
+}
+</script>
+```
+
+## 安装插件的本质
+
+```javascript
+// 安装插件
+// 方式一: 传入对象的情况
+app.use({
+  install: function(app) {
+    console.log("传入对象的install被执行:", app)
+  }
+})
+
+
+// 方式二: 传入函数的情况
+app.use(function(app) {
+  console.log("传入函数被执行:", app)
+})
+
+```
+
+通常我们**向Vue全局添加一些功能**时，会采用**插件的模式，它有两种编写方式**：
+
+- 对象类型：一个对象，但是必须包含一个 install 的函数，该函数会在安装插件时执行；
+
+- 函数类型：一个function，这个函数会在安装插件时自动执行；
+
+插件可以**完成的功能没有限制**，比如下面的几种都是可以的：
+
+- 添加全局方法或者 property，通过把它们添加到 config.globalProperties 上实现；
+
+- 添加全局资源：指令/过滤器/过渡等；
+
+- 通过全局 mixin 来添加一些组件选项；
+
+- 一个库，提供自己的 API，同时提供上面提到的一个或多个功能
+
+## Render(渲染)函数
+
+Vue推荐在绝大数情况下**使用模板**来创建你的HTML，然后一些特殊的场景，你真的需要**JavaScript的完全编程的能力**，这个时候你可以使用 **渲染函数** ，它**比模板更接近编译器**；
+
+**前面我们讲解过****VNode和VDOM****的概念：**
+
+- Vue在生成真实的DOM之前，会将我们的节点转换成VNode，而VNode组合在一起形成一颗树结构，就是虚拟DOM（VDOM）；
+
+- 事实上，我们之前编写的 template 中的HTML 最终也是使用**渲染函数**生成对应的VNode；
+
+- 那么，如果你想充分的利用JavaScript的编程能力，我们可以自己来编写 createVNode 函数，生成对应的VNode；
+
+那么我们应该怎么来做呢？**使用 h()函数：**
+
+- h() 函数是一个用于创建 vnode 的一个函数；
+
+- 其实更准备的命名是 createVNode() 函数，但是为了简便在Vue将之简化为 h() 函数；
+
+**h()函数 如何使用呢？它接受三个参数：**
+
+![tag参数](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230203001348187.png)![props参数](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230203001416739.png)![children参数](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230203001433671.png)
+
+在Vue中可以省去`<template>`标签，直接在`<script>`标签中书写代码
+
+```vue
+<script>//h函数与createVNode函数功能相同
+  import { h } from 'vue'
+  export default {
+    render() {
+      return h("div", { className: "app" }, [
+        h("h2", { className: "title" }, "我是标题"),
+        h("p", { className: "content" }, "我是内容, 哈哈哈"),
+      ])
+    }
+  }
+</script>
+```
+
+实现计数器：
+
+```vue
+//Vue2选项式API写法
+<script>
+  import { h } from 'vue'
+  import Home from "./Home.vue"
+
+  export default {
+    data() {
+      return {
+        counter: 0
+      }
+    },
+    render() {
+      return h("div", { className: "app" }, [
+        h("h2", null, `当前计数: ${this.counter}`),
+        h("button", { onClick: this.increment }, "+1"),
+        h("button", { onClick: this.decrement }, "-1"),
+        h(Home)
+      ])
+    },
+    methods: {
+      increment() {
+        this.counter++
+      },
+      decrement() {
+        this.counter--
+      }
+    }
+  }
+</script>
+//Vue3组合式API写法
+<script>
+  import { h, ref } from 'vue'
+  import Home from "./Home.vue"
+  export default {
+    setup() {
+      const counter = ref(0)
+      const increment = () => {
+        counter.value++
+      }
+      const decrement = () => {
+        counter.value--
+      }
+      return () => h("div", { className: "app" }, [
+        h("h2", null, `当前计数: ${counter.value}`),
+        h("button", { onClick: increment }, "+1"),
+        h("button", { onClick: decrement }, "-1"),
+        h(Home)
+      ])
+    }
+  }
+</script>
+<script setup>
+import { ref, h } from 'vue';
+import Home from './Home.vue'
+
+const counter = ref(0)
+
+const increment = () => {
+  counter.value++
+}
+const decrement = () => {
+  counter.value--
+}
+const render = () => h("div", { className: "app" }, [
+  h("h2", null, `当前计数: ${counter.value}`),
+  h("button", { onClick: increment }, "+1"),
+  h("button", { onClick: decrement }, "-1"),
+  h(Home)//没有return的情况下创建render变量指向箭头函数
+])
+</script>
+```
+
+**h函数可以在两个地方使用：**
+
+- render函数选项中；
+
+- setup函数选项中（setup本身需要是一个函数类型，函数再返回h函数创建的VNode）；
+
+
+
+## 响应式原理
+
+响应式数据分为两类：
+
+- 对象，循环遍历对象的所有属性，为每个属性设置 getter、setter，以达到拦截访问和设置的目的，如果属性值依旧为对象，则递归为属性值上的每个 key 设置 getter、setter
+  - 访问数据时（obj.key)进行依赖收集，在 dep 中存储相关的 watcher
+  - 设置数据时由 dep 通知相关的 watcher 去更新
+- 数组，增强数组的7 个可以更改自身的原型方法，然后拦截对这些方法的操作
+  - 添加新数据时进行响应式处理，然后由 dep 通知 watcher 去更新
+  - 删除数据时，也要由 dep 通知 watcher 去更新
+
+![Vue官方原理图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/162f71d7977c8a3f~tplv-t2oaga2asx-zoom-in-crop-mark:4536:0:0:0.webp)
+
+简化后如下图：
+
+![图解Vue响应式原理](https://etheral.oss-cn-shanghai.aliyuncs.com/images/142efe2ab4724f2dba7dc3958ad8564c~tplv-k3u1fbpfcp-zoom-crop-mark:3024:3024:3024:1702.webp)
+
+
+
+```javascript
+const WeakMap = new WeakMap()//弱引用哈希表，key的类型必须为对象类型
+//依赖收集器(Dep)
+function track(target, key) {
+    // 如果此时activeEffect为null则不执行下面
+    // 这里判断是为了避免例如console.log(person.name)而触发track
+    if (!activeEffect) return
+    let depsMap = WeakMap.get(target)
+    if (!depsMap) {
+        WeakMap.set(target, depsMap = new Map())
+    }
+    let dep = depsMap.get(key)
+    if (!dep) {
+        depsMap.set(key, dep = new Set())
+    }
+    dep.add(activeEffect) // 把此时的activeEffect添加进去
+}
+//触发器（Watcher）
+function trigger(target, key) {
+    let depsMap = WeakMap.get(target)
+    if (depsMap) {
+        const dep = depsMap.get(key)
+        if (dep) {
+            dep.forEach(effect => effect())
+        }
+    }
+}
+//Proxy实现reactive
+function reactive(target) {
+    const handler = {
+        get(target, key, receiver) {
+            track(receiver, key) // 访问时收集依赖(Dep)
+            return Reflect.get(target, key, receiver)
+        },
+        set(target, key, value, receiver) {
+            Reflect.set(target, key, value, receiver)
+            trigger(receiver, key) // 设值时自动通知更新(Watcher)
+        }
+    }
+    return new Proxy(target, handler)
+}
+let activeEffect = null//闭包，执行完直接销毁
+function effect(fn) {
+    activeEffect = fn
+    activeEffect()
+    activeEffect = null
+}
+const person = { name: '林三心', age: 22 }
+const animal = { type: 'dog', height: 50 }
+let nameStr1 = ''
+let nameStr2 = ''
+let ageStr1 = ''
+let ageStr2 = ''
+let typeStr1 = ''
+let typeStr2 = ''
+let heightStr1 = ''
+let heightStr2 = ''
+
+const effectNameStr1 = () => { nameStr1 = `${person.name}是个大菜鸟` }
+const effectNameStr2 = () => { nameStr2 = `${person.name}是个小天才` }
+const effectAgeStr1 = () => { ageStr1 = `${person.age}岁已经算很老了` }
+const effectAgeStr2 = () => { ageStr2 = `${person.age}岁还算很年轻啊` }
+const effectTypeStr1 = () => { typeStr1 = `${animal.type}是个大菜鸟` }
+const effectTypeStr2 = () => { typeStr2 = `${animal.type}是个小天才` }
+const effectHeightStr1 = () => { heightStr1 = `${animal.height}已经算很高了` }
+const effectHeightStr2 = () => { heightStr2 = `${animal.height}还算很矮啊` }
+
+track(person, 'name') // 收集person.name的依赖
+track(person, 'age') // 收集person.age的依赖
+track(animal, 'type') // animal.type的依赖
+track(animal, 'height') // 收集animal.height的依赖
+
+effectNameStr1()
+effectNameStr2()
+effectAgeStr1()
+effectAgeStr2()
+effectTypeStr1()
+effectTypeStr2()
+effectHeightStr1()
+effectHeightStr2()
+
+console.log(nameStr1, nameStr2, ageStr1, ageStr2)
+// 林三心是个大菜鸟 林三心是个小天才 22岁已经算很老了 22岁还算很年轻啊
+
+console.log(typeStr1, typeStr2, heightStr1, heightStr2)
+// dog是个大菜鸟 dog是个小天才 50已经算很高了 50还算很矮啊
+
+person.name = 'sunshine_lin'
+person.age = 18
+animal.type = '猫'
+animal.height = 20
+trigger(person, 'name')
+trigger(person, 'age')
+trigger(animal, 'type')
+trigger(animal, 'height')
+
+console.log(nameStr1, nameStr2, ageStr1, ageStr2)
+// sunshine_lin是个大菜鸟 sunshine_lin是个小天才 18岁已经算很老了 18岁还算很年轻啊
+console.log(typeStr1, typeStr2, heightStr1, heightStr2)
+// 猫是个大菜鸟 猫是个小天才 20已经算很高了 20还算很矮啊
+
+```
+
+![代码示意](https://etheral.oss-cn-shanghai.aliyuncs.com/images/3b77828e354a4716a5e2be59e136bf0b~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.webp)
+
+我们前面所实现的响应式的代码，其实就是Vue3中的响应式原理：
+
+- Vue2中通过我们前面学习过的Object.defineProerty的方式来实现对象属性的监听；
+
+- Vue3主要是通过Proxy来监听数据的变化以及收集相关的依赖的；
+
+`Object.defineProperty`只对初始对象里的属性有监听作用，而对新增的属性无效。所以Vue2中对象新增属性的修改需要使用`Vue.$set`来设值，Vue3使用Proxy实现响应式。
+
+响应式原理涉及的设计模式：发布订阅模式,观察者模式,代理模式（Vue3)
+
+Vue中常用API实现
+
+```javascript
+//Vue2reactive实现
+function reactive(obj) {
+  Object.keys(obj).forEach(key => {
+    let value = obj[key]
+    Object.defineProperty(obj, key, {
+      set: function(newValue) {
+        value = newValue
+        const dep = getDepend(obj, key)
+        dep.notify()
+      },
+      get: function() {
+        // 拿到obj -> key
+        // console.log("get函数中:", obj, key)
+        // 找到对应的obj对象的key对应的dep对象
+        const dep = getDepend(obj, key)
+        // dep.addDepend(reactiveFn)
+        dep.depend()
+  
+        return value
+      }
+    })
+  })  
+  return obj
+}
+//实现ref
+function ref(initValue) {
+    return reactive({
+        value: initValue
+    })
+}
+//实现computed
+function computed(fn) {
+    const result = ref()
+    effect(() => result.value = fn())
+    return result
+}
+```
+

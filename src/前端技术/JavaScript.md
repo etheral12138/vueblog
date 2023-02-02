@@ -1398,7 +1398,30 @@ alert( user.friends[1] ); // 1
 想要使用JSX必须做两件事：
 
 1. 给文件一个`.tsx`扩展名
+
 2. 启用`jsx`选项
+
+如果我们希望**在项目中使用jsx**，那么我们**需要添加对jsx的支持**：
+
+- jsx我们通常会通过Babel来进行转换（React编写的jsx就是通过babel转换的）；
+
+- 对于Vue来说，我们只需要在Babel中配置对应的插件即可；
+
+```jsx
+//Vue中的JSX写法
+<script lang="jsx">
+  export default {
+    render() {
+      return (
+        <div class="app">
+          <h2>我是标题</h2>
+          <p>我是内容, 哈哈哈</p>
+        </div>
+      )
+    }
+  }
+</script>
+```
 
 > 本文参考链接:
 >
