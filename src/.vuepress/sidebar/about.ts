@@ -1,7 +1,7 @@
 export const about = [
     {
         text: "关于",
-        collapsable: false,
+        collapsible: false,
         children: [
             "author",
         ]
