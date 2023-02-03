@@ -77,15 +77,15 @@ export default defineUserConfig({
         }),
     ],
     head: [
-        ["link", {rel: "preconnect", href: "https://fonts.googleapis.com"}],
-        [
-            "link",
-            {rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: ""},
-        ],
+        ["link", {rel: "preconnect", href: "https://fonts.geekzu.org"}],
+        // [
+        //     "link",
+        //     {rel: "preconnect", href: "https://gapis.geekzu.org/g-fonts/", crossorigin: ""},
+        // ],
         [
             "link",
             {
-                href: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC&display=swap",
+                href: "https://fonts.geekzu.org/css?family=Noto+Serif+SC",
                 rel: "stylesheet",
             },
         ],
