@@ -27,9 +27,9 @@ export default defineUserConfig({
             },
         ),
         docsearchPlugin({
-            apiKey: "7cfd751d4c7b5fe638591fc73c174a7d",
-            appId: "4HTLIER5EQ",
-            indexName: "etheral",
+            apiKey: "ed327a358d99674a4c14b86959d46491",
+            appId: "S39EFURQDU",
+            indexName: "etheralcc",
             disableUserPersonalization: true,
             locales: {
                 "/": {
