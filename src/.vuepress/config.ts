@@ -27,7 +27,7 @@ export default defineUserConfig({
             },
         ),
         docsearchPlugin({
-            apiKey: "ed327a358d99674a4c14b86959d46491",
+            apiKey: "17a7f3d58e4252f9f9bce1fc64d70a08",
             appId: "S39EFURQDU",
             indexName: "etheralcc",
             disableUserPersonalization: true,
