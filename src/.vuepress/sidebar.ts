@@ -23,7 +23,8 @@ export const zhSidebar = sidebar({
             children: [
                 "二叉树",
                 "回溯算法（DFS）",
-                "动态规划"
+                "动态规划",
+                "排序"
             ]
         },
         {
