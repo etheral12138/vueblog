@@ -2079,7 +2079,7 @@ function track(target, key) {
     }
     dep.add(activeEffect) // 把此时的activeEffect添加进去
 }
-//触发器（Watcher）
+//触发器（Watcher），相当于订阅者
 function trigger(target, key) {
     let depsMap = WeakMap.get(target)
     if (depsMap) {
