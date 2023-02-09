@@ -319,7 +319,67 @@ sayHi();
 
 在浏览器中，使用 `var`（而不是 `let/const`！）声明的全局函数和变量会成为全局对象的属性。
 
-## 二、JavaScript对象
+## 二、JavaScript数据结构
+
+### 数组方法：
+
+- 添加/删除元素：
+  - `push(...items)` —— 向尾端添加元素，
+  - `pop()` —— 从尾端提取一个元素，
+  - `shift()` —— 从首端提取一个元素，
+  - `unshift(...items)` —— 向首端添加元素，
+  - `splice(pos, deleteCount, ...items)` —— 从 `pos` 开始删除 `deleteCount` 个元素，并插入 `items`。
+  - `slice(start, end)` —— 创建一个新数组，将从索引 `start` 到索引 `end`（但不包括 `end`）的元素复制进去。
+  - `concat(...items)` —— 返回一个新数组：复制当前数组的所有元素，并向其中添加 `items`。如果 `items` 中的任意一项是一个数组，那么就取其元素。
+- 搜索元素：
+  - `indexOf/lastIndexOf(item, pos)` —— 从索引 `pos` 开始搜索 `item`，搜索到则返回该项的索引，否则返回 `-1`。
+  - `includes(value)` —— 如果数组有 `value`，则返回 `true`，否则返回 `false`。
+  - `find/filter(func)` —— 通过 `func` 过滤元素，返回使 `func` 返回 `true` 的第一个值/所有值。
+  - `findIndex` 和 `find` 类似，但返回索引而不是值。
+- 遍历元素：
+  - `forEach(func)` —— 对每个元素都调用 `func`，不返回任何内容。
+- 转换数组：
+  - `map(func)` —— 根据对每个元素调用 `func` 的结果创建一个新数组。
+  - `sort(func)` —— 对数组进行原位（in-place）排序，然后返回它。
+  - `reverse()` —— 原位（in-place）反转数组，然后返回它。
+  - `split/join` —— 将字符串转换为数组并返回。
+  - `reduce/reduceRight(func, initial)` —— 通过对每个元素调用 `func` 计算数组上的单个值，并在调用之间传递中间结果。
+- 其他：
+  - `Array.isArray(value)` 检查 `value` 是否是一个数组，如果是则返回 `true`，否则返回 `false`。
+
+请注意，`sort`，`reverse` 和 `splice` 方法修改的是数组本身。
+
+### Map和Set
+
+`Map` —— 是一个带键的数据项的集合。
+
+方法和属性如下：
+
+- `new Map([iterable])` —— 创建 map，可选择带有 `[key,value]` 对的 `iterable`（例如数组）来进行初始化。
+- `map.set(key, value)` —— 根据键存储值，返回 map 自身。
+- `map.get(key)` —— 根据键来返回值，如果 `map` 中不存在对应的 `key`，则返回 `undefined`。
+- `map.has(key)` —— 如果 `key` 存在则返回 `true`，否则返回 `false`。
+- `map.delete(key)` —— 删除指定键对应的值，如果在调用时 `key` 存在，则返回 `true`，否则返回 `false`。
+- `map.clear()` —— 清空 map 。
+- `map.size` —— 返回当前元素个数。
+
+与普通对象 `Object` 的不同点：
+
+- 任何键、对象都可以作为键。
+- 有其他的便捷方法，如 `size` 属性。
+
+`Set` —— 是一组唯一值的集合。
+
+方法和属性：
+
+- `new Set([iterable])` —— 创建 set，可选择带有 `iterable`（例如数组）来进行初始化。
+- `set.add(value)` —— 添加一个值（如果 `value` 存在则不做任何修改），返回 set 本身。
+- `set.delete(value)` —— 删除值，如果 `value` 在这个方法调用的时候存在则返回 `true` ，否则返回 `false`。
+- `set.has(value)` —— 如果 `value` 在 set 中，返回 `true`，否则返回 `false`。
+- `set.clear()` —— 清空 set。
+- `set.size` —— 元素的个数。
+
+在 `Map` 和 `Set` 中迭代总是按照值插入的顺序进行的，所以我们不能说这些集合是无序的，但是我们不能对元素进行重新排序，也不能直接按其编号来获取元素。
 
 ### 对象属性
 
@@ -941,6 +1001,21 @@ const lzqdebounce=function(fn,delay){
 
 ### :star::star::star:8.节流
 
+```javascript
+const lzqthrottle=function(fn,interval,options){
+let lastTime=0
+const _throttle=function(){
+    const nowTime=new Date().getTime()
+    const remainTime=interval-(nowTime-lastTime)
+    if(remainTime<=0){
+        fn()
+        lastTime=nowTime
+    }
+}
+return _throttle
+}
+```
+
 
 
 ### :star::star:9.浅拷贝
@@ -955,7 +1030,52 @@ Object.assign(a,b,c,…)方法，作用是将b,c及之后的对象拷贝到a对�
 
 ### :star::star:11.事件总线（EventBus）
 
+```javascript
+class EventBus{
+    constructor(){
+      this.eventbus={}
+    }
+    on(eventname,eventcallback,thisarg){
+        let handlers=this.eventbus[eventname]
+        if(!handlers){
+            handlers=[]
+            this.eventbus[eventname]=handlers
+        }
+        handlers.push({
+            eventcallback,thisarg
+        })
+    }
+    off(eventname,eventCallback){
+        const handlers=this.eventbus[eventname]
+        if(!handlers) return
+        const newhandlers=[...handlers]
+        for(let i=0;i<newhandlers.length;i++){
+            const handler=newhandlers[i]
+            if(handler.eventcallback===eventCallback){
+                const index=handlers.indexof(handler)
+                handlers.splice(index,1)
+            }
+        }
+    }
+    emit(eventname,...payload){
+        const handlers=this.eventbus[eventname]
+        if(!handlers) return
+        handlers.forEach(handler=>{
+            handler.eventcallback.apply(handler.thisArg,payload)
+        })
+    }
+}
+```
 
+事件总线实质上是观察者模式的应用。
+
+- 发布者：发出事件（Event）
+
+- 订阅者：订阅事件（Event），并且响应（Handler）
+
+- 事件总线：发布者和订阅者的中台
+
+  我们也可以选择第三方库。
 
 ## 五、JavaScript原型与继承
 
