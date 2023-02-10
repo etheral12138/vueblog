@@ -26,6 +26,7 @@ export default defineUserConfig({
             },
         ),
         docsearchPlugin({
+            initialQuery: undefined, placeholder: undefined, searchParameters: undefined, translations: undefined,
             apiKey: "17a7f3d58e4252f9f9bce1fc64d70a08",
             appId: "S39EFURQDU",
             indexName: "etheralcc",
@@ -72,27 +73,27 @@ export default defineUserConfig({
                         },
                     },
                 },
-            },
+            }
         }),
     ],
-    head: [
-        ["link", {rel: "preconnect", href: "https://fonts.geekzu.org"}],
+    // head: [
+    //     ["link", {rel: "preconnect", href: "https://fonts.geekzu.org"}],
         // [
         //     "link",
         //     {rel: "preconnect", href: "https://gapis.geekzu.org/g-fonts/", crossorigin: ""},
         // ],
-        [
-            "link",
-            {
-                href: "https://fonts.geekzu.org/css?family=Noto+Serif+SC",
-                rel: "stylesheet",
-            },
-        ],
+        // [
+        //     "link",
+        //     {
+        //         href: "https://fonts.geekzu.org/css?family=Noto+Serif+SC",
+        //         rel: "stylesheet",
+        //     },
+        // ],
 
         // <link rel="preconnect" href="https://fonts.googleapis.com">
         // <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         // <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC&display=swap" rel="stylesheet">
-    ],
+    // ],
     theme,
     shouldPrefetch: false,
 })
