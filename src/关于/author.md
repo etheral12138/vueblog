@@ -36,3 +36,5 @@ tag:
 
 凡心所向，素履以往。生如逆旅，一苇以航。
 
+![](https://ghchart.rshah.org/409ba5/etheral12138)
+
