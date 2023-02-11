@@ -40,4 +40,7 @@ tag:
 
 
 
-![GitHub](https://ghchart.rshah.org/409ba5/etheral12138)
+<img src="https://ghchart.rshah.org/etheral12138" alt="etheral12138's Github chart" />
+
+
+
