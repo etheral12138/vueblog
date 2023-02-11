@@ -893,17 +893,201 @@ extends 语法会设置两个原型：
 
 ### 1.call
 
+```javascript
+Function.prototype._call = function(context, ...args) {
+  if (typeof this !== 'function') console.error('type Error'); // 1
+  context = (context!==null && context!==undefined) ? Object(context) : window
+    
+  context.fn = this // 2
+  
+  const result = context.fn(...args)  // 3
+  delete context.fn;
+  return result
+}
+```
+
+简化版本如下：
+
+```javascript
+Function.prototype._call = function (ctx, ...args) {
+  // 如果不为空，则需要进行对象包装
+  const o = ctx == undefined ? window : Object(ctx)
+  // 给 ctx 添加独一无二的属性
+  const key = Symbol()
+  o[key] = this
+  // 执行函数，得到返回结果
+  const result = o[key](...args)
+  // 删除该属性
+  delete o[key]
+  return result
+}
+```
+
 
 
 ### 2.apply
 
+```javascript
+ Function.prototype._apply = function(context, argArray) {
+  if (typeof this !== 'function') return console.error('Error')
+  context = (context!==null && context!==undefined) ? Object(context) : window
+  argArray = argArray || []
 
+  context.fn = this
+  
+  const result = context.fn(...argArray)
+  delete context.fn
+  return result
+}
+```
+
+简化版本如下：
+
+```javascript
+Function.prototype._apply = function (ctx, arr) {
+  // 如果不为空，则需要进行对象包装
+  const o = ctx == undefined ? window : Object(ctx)
+  // 给 ctx 添加独一无二的属性
+  const key = Symbol()
+  o[key] = this
+  arr=arr||[]
+  // 执行函数，得到返回结果
+  const result = o[key](...arr)
+  // 删除该属性
+  delete o[key]
+  return result
+}
+```
+
+注意，apply与call不同，apply第二个参数是数组。
+
+通过在传入的对象上，临时新增一个方法，这个方法的值是当前 `binApply` 的调用者。然后 `context.fn(...argArray)` 调用这个函数，通过隐式绑定的方式改变了 `this` 的指向，最后得到结果并返回
 
 ### 3.bind
 
+```javascript
+Function.prototype.binBind = function(context, ...args) {
+  if (typeof this !== 'function') return console.error('Error');
+  context = (context!==null && context!==undefined) ? Object(context) : window
 
+  context.fn = this // 这一步不能放在返回的函数里面
 
-### 4.Promise.all
+  // 返回一个函数
+  return function Fn(...args2) {
+    // 处理参数，调用函数，返回结果
+    const newArr = [...args, ...args2]
+    const result = context.fn(...newArr)
+    delete context.fn
+    return result
+  }
+}
+```
+
+简化版本如下：
+
+```javascript
+Function.prototype._bind = function (ctx, ...args) {
+  // 获取函数体
+  const _self = this
+  // 用一个新函数包裹，避免立即执行
+  const bindFn = (...reset) => {
+    return _self.call(ctx, ...args, ...reset)
+  }
+  return bindFn
+}
+```
+
+注意,bind的返回值应当是一个函数。
+
+通过在传入的对象上，临时新增一个方法，这个方法的值是当前 `binBind` 的调用者。然后在返回的函数当中 `context.fn(...argArray)` 调用这个函数，通过隐式绑定的方式改变了 `this` 的指向，最得到结果并返回
+
+### 4.Promise方法
+
+```javascript
+// 有一个失败则返回失败的结果，全部成功返回全成功的数组
+Promise.all = function (promiseList = []) {
+  return new Promise((resolve, reject) => {
+    const result = []
+    let count = 0
+    if (promiseList.length === 0) {
+      resolve(result)
+      return
+    }
+    for (let i = 0; i < promiseList.length; i++) {
+      Promise.resolve(promiseList[i]).then(res => {
+        result[i] = res
+        count++
+        // 不能直接通过 result.length 进行比较，因为 会存在下标大的先赋值
+        // 例如 i = 3 第一个返回结果，此时数组变为[empty,empty,empty,res]
+        if (count === promiseList.length) {
+          resolve(result)
+        }
+      }).catch(e => {
+        reject(e)
+      })
+    }
+  })
+}
+// 返回第一个成功或失败的结果
+Promise.race = function (promiseList = []) {
+  return new Promise((resolve, reject) => {
+    if (promiseList.length === 0) {
+      return resolve([])
+    }
+    for (let i = 0; i < promiseList.length; i++) {
+      Promise.resolve(promiseList[i]).then(res => {
+        resolve(res)
+      }).catch(e => {
+        reject(e)
+      })
+    }
+  })
+}
+// 无论成功约否都返回，但是会添加一个 status 字段用于标记成功/失败
+Promise.allSettled = function (promiseList = []) {
+  return new Promise((resolve, reject) => {
+    const result = []
+    let count = 0
+
+    const addRes = (i, data) => {
+      result[i] = data
+      count++
+      if (count === promiseList.length) {
+        resolve(result)
+      }
+    }
+    
+    if (promiseList.length === 0) return resolve(result)
+    for (let i = 0; i < promiseList.length; i++) {
+      Promise.resolve(promiseList[i]).then(res => {
+        addRes(i, { status: 'fulfilled', data: res })
+      }).catch(e => {
+        addRes(i, { status: 'rejected', data: e })
+      })
+    }
+  })
+}
+// AggregateError，当多个错误需要包装在一个错误中时，该对象表示一个错误。
+// 和 Promise.all 相反，全部失败返回失败的结果数组，有一个成功则返回成功结果
+Promise.any = function (promiseList = []) {
+  return new Promise((resolve, reject) => {
+    if (promiseList.length === 0) return resolve([])
+    let count = 0
+    const result = []
+    for (let i = 0; i < promiseList.length; i++) {
+      Promise.resolve(promiseList[i]).then(res => {
+        resolve(res)
+      }).catch(e => {
+        count++
+        result[i] = e
+        if (count === promiseList.length) {
+          reject(new AggregateError(result))
+        }
+      })
+    }
+  })
+}
+```
 
 
 
@@ -983,6 +1167,8 @@ var arr = [1,5,2,10,15];
    console.log(arr);
 ```
 
+这部分不用死记硬背，在实际书写过程中可以通过在控制台打印输出日志判断是否书写
+
 ### :star::star::star:7.防抖
 
 ```javascript
@@ -1016,17 +1202,134 @@ return _throttle
 }
 ```
 
-
-
 ### :star::star:9.浅拷贝
 
 Object.assign(a,b,c,…)方法，作用是将b,c及之后的对象拷贝到a对象中。
+
+我们也可以自己实现浅拷贝函数：
+
+```javascript
+const _shallowClone = target => {
+  // 基本数据类型直接返回
+  if (typeof target === 'object' && target !== null) {
+    // 获取target 的构造体
+    const constructor = target.constructor
+    // 如果构造体为以下几种类型直接返回
+    if (/^(Function|RegExp|Date|Map|Set)$/i.test(constructor.name)) return target
+    // 判断是否是一个数组
+    const cloneTarget = Array.isArray(target) ? [] : {}
+    for (let prop in target) {
+      // 只拷贝其自身的属性
+      if (target.hasOwnProperty(prop)) {
+        cloneTarget[prop] = target[prop]
+      }
+    }
+    return cloneTarget
+  } else {
+    return target
+  }
+}
+```
+
+
 
 ### :star::star:10.深拷贝
 
 对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
 
 简单来说，假如A对象中嵌套了B对象，那么对A对象进行浅拷贝将不会拷贝嵌套的B对象，而是保留对B对象的引用。我们修改A对象的拷贝的属性值时是无效的，但是修改B对象的属性值时有效。所以，深拷贝很有必要，它可以完全拷贝一个对象。
+
+JavaScript中的JSON.parse()方法可以用于深拷贝
+
+```javascript
+const obj={
+name:"lzq",
+    friend:{
+        name:"owen"
+    }
+    foo:function(){
+        console.log("foo function")
+    }
+}
+const info=JSON.parse(JSON.stringify(obj))
+console.log(info===obj)
+obj.friend.name="james"
+console.log(info)
+```
+
+但是这种方法也存在问题：
+
+- 这种深拷贝对于函数和Symbol等类型无效
+
+- 如果存在对象的循环引用会报错
+
+我们可以自己实现深拷贝函数：
+
+
+```javascript
+function deepclone(oldvalue,map=new WeakMap()){
+if(oldvalue instanceof Set){
+    return new Set([...oldvalue])
+    }
+if(oldvalue instanceof Map){
+    return new Map([...oldvalue])
+    }
+if(typeof oldvalue==="symbol" ){
+        return Symbol(oldvalue.description)
+    }
+if(typeof oldvalue ==="function"){
+        return oldvalue
+    }
+if(!isObject(oldvalue)){
+return oldvalue
+}
+if(map.has(oldvalue)){
+    return map.get(oldvalue)
+}
+const newObject=Array.isArray(oldvalue)?[]:{}
+map.set(oldvalue,newObject)
+for(const key in oldvalue){
+        newObject[key]=deepclone(oldvalue[key],map)
+    }
+const symbolkeys=Object.getownPropertySymbols(oldvalue)
+for(const key of symbolkeys){
+        newObject[key]=deepclone(oldvalue[key],map)
+    }
+return newObject
+}
+function isObject(value){
+    const valueType=typeof value
+    return (value!==null)&&(valueType==="object"||value==="function")
+}
+```
+
+简洁版：
+
+```javascript
+const _completeDeepClone = (target, map = new WeakMap()) => {
+  // 基本数据类型，直接返回
+  if (typeof target !== 'object' || target === null) return target
+  // 函数 正则 日期 ES6新对象,执行构造题，返回新的对象
+  const constructor = target.constructor
+  if (/^(Function|RegExp|Date|Map|Set)$/i.test(constructor.name)) return new constructor(target)
+  // map标记每一个出现过的属性，避免循环引用
+  if (map.get(target)) return map.get(target)
+  map.set(target, true)
+  const cloneTarget = Array.isArray(target) ? [] : {}
+  for (prop in target) {
+    if (target.hasOwnProperty(prop)) {
+      cloneTarget[prop] = _completeDeepClone(target[prop], map)
+    }
+  }
+  return cloneTarget
+}
+```
+
+
+
+
+
+
 
 ### :star::star:11.事件总线（EventBus）
 
@@ -1075,7 +1378,56 @@ class EventBus{
 
 - 事件总线：发布者和订阅者的中台
 
-  我们也可以选择第三方库。
+我们也可以选择第三方库。
+
+### 12.LRU缓存(LC146)
+
+LRU是Least Recently Used的缩写，即最近最少使用，是一种常用的**页面置换算法**，选择最近最久未使用的页面予以淘汰。该算法赋予每个**页面**一个访问字段，用来记录一个页面自上次被访问以来所经历的时间 t，当须淘汰一个页面时，选择现有页面中其 t 值最大的，即最近最少使用的页面予以淘汰。
+
+```javascript
+/**
+ * @param {number} capacity
+ */
+var LRUCache = function(capacity) {
+    this.map = new Map()
+    this.capacity = capacity
+};
+
+/** 
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function(key) {
+    if(this.map.has(key)){
+        const value = this.map.get(key)
+        // 更新存储位置
+        this.map.delete(key)
+        this.map.set(key,value)
+        return value
+    }
+    return - 1
+};
+
+/** 
+ * @param {number} key 
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function(key, value) {
+    if(this.map.has(key)){
+        this.map.delete(key)
+    }
+    this.map.set(key,value)
+    // 如果此时超过了最长可存储范围
+    if(this.map.size > this.capacity){
+        // 删除 map 中最久未使用的元素
+        this.map.delete(this.map.keys().next().value)
+    }
+};
+```
+
+
+
 
 ## 五、JavaScript原型与继承
 
