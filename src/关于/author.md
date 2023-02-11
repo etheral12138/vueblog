@@ -8,6 +8,8 @@ tag:
 - about
 ---
 
+
+
 ## :question:我是谁
 
 我是一名学生。目前大二在读，方向是前端开发，平时也会使用Java/Python作为辅助语言。
@@ -36,5 +38,6 @@ tag:
 
 凡心所向，素履以往。生如逆旅，一苇以航。
 
-![](https://ghchart.rshah.org/409ba5/etheral12138)
 
+
+![GitHub](https://ghchart.rshah.org/409ba5/etheral12138)
