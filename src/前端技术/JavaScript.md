@@ -1,6 +1,6 @@
 ---
 title: JavaScript
-date: 2023-1-31
+date: 2023-2-6
 icon: javascript
 category:
 - 前端技术
@@ -1004,6 +1004,153 @@ Function.prototype._bind = function (ctx, ...args) {
 ### 4.Promise方法
 
 ```javascript
+const PROMISE_STATUS_PENDING = "pending";
+const PROMISE_STATUS_FULFILLED = "fulfilled";
+const PROMISE_STATUS_REJECTED = "rejected";
+
+class _Promise {
+	constructor(executor) {
+		/* 初始化 promise pending状态*/
+		this.status = PROMISE_STATUS_PENDING;
+		/* 记录当前 promise 兑现值和拒因*/
+		this.value = undefined;
+		this.reason = undefined;
+		/* 
+      记录当前 promise 的fullfilled与rejected回调
+      使用数组是因为一个 promise 可以接受多次then,catch回调，否则只需各存储一个函数即可
+     */
+		this.onFulFilledFns = [];
+		this.onRejectedFns = [];
+
+		const resolve = (value) => {
+			/* 
+        此处存在两次判断 promise 状态，分别是执行executor和执行微任务时
+        保证 promise 状态一经确定不再改变
+      */
+			if (this.status === PROMISE_STATUS_PENDING) {
+        /* resolve方法处理 promise 和 thenable 特殊参数 */
+        if (value instanceof _Promise || (typeof value === 'object' && typeof value.then === 'function')) {
+          return value.then(resolve, reject)
+        }
+        
+				/* 使用微任务API，加入到微任务栈中 */
+				queueMicrotask(() => {
+					if (this.status === PROMISE_STATUS_PENDING) {
+						this.status = PROMISE_STATUS_FULFILLED;
+						this.value = value;
+						/* 执行fulfilled回调 */
+						this.onFulFilledFns.forEach((fn) => {
+							fn(this.value);
+						});
+					}
+				});
+			}
+		};
+
+		const reject = (reason) => {
+			if (this.status === PROMISE_STATUS_PENDING) {
+				queueMicrotask(() => {
+					if (this.status === PROMISE_STATUS_PENDING) {
+						this.status = PROMISE_STATUS_REJECTED;
+						this.reason = reason;
+						this.onRejectedFns.forEach((fn) => {
+							fn(this.reason);
+						});
+					}
+				});
+			}
+		};
+
+		/* 此处捕获executor执行中抛出的错误，若存在错误则 promise 变成拒绝状态 */
+		try {
+			executor(resolve, reject);
+		} catch (err) {
+			reject(err);
+		}
+	}
+
+	then(onFulFilledFn, onRejectedFn) {
+		/* 根据Promise A+标准，若回调不为函数类型则忽视，默认值回调会将状态继续传入下一个 promise 中 */
+		onFulFilledFn =
+			typeof onFulFilledFn === "function" ? onFulFilledFn : (res) => res;
+		onRejectedFn=
+		  typeof onRejectedFn==='function' ? onRejectedFn : (err) => {throw err};
+
+		/* then方法返回值是一个新 promise */
+		return new _Promise((resolve, reject) => {
+			/* 若捕获当前 promise 已经改变状态，则直接调用回调 */
+			if (this.status === PROMISE_STATUS_FULFILLED) {
+				/* 捕获fulfilled回调错误，捕获到则改变新promise状态为拒绝状态 */
+				try {
+					let result = onFulFilledFn(this.value);
+					/* 返回值传递给下一个fulfilled回调 */
+					resolve(result);
+				} catch (err) {
+					reject(err);
+				}
+			}
+
+			if (this.status === PROMISE_STATUS_REJECTED) {
+				try {
+					let result = onRejectedFn(this.reason);
+					/* 返回值传递给下一个fulfilled回调 */
+					resolve(result);
+				} catch (err) {
+					reject(err);
+				}
+			}
+
+			/* 若当前 promse 没改变状态/改变状态的异步还未执行，先储存回调 */
+			if (this.status === PROMISE_STATUS_PENDING) {
+				this.onFulFilledFns.push(() => {
+					try {
+						let result = onFulFilledFn(this.value);
+						resolve(result);
+					} catch (err) {
+						reject(err);
+					}
+				});
+				this.onRejectedFns.push(() => {
+					try {
+						let result = onRejectedFn(this.reason);
+						resolve(result);
+					} catch (err) {
+						reject(err);
+					}
+				});
+			}
+		});
+	}
+
+	catch(onRejectedFn) {
+		/* catch方法类似then方法的语法糖 */
+		return this.then(undefined, onRejectedFn);
+	}
+
+	finally(onFinallyFn) {
+    /* finally无任何影响，仅单独调用，且无任何参数 */
+		return this.then(
+			(res) => {
+				onFinallyFn();
+				return res;
+			},
+			(err) => {                 
+				onFinallyFn();
+				throw err;
+			}
+		);
+	}       
+}
+_Promise.resolve=function(value){
+  return new _Promise(       
+    resolve=>resolve(value)               
+  );
+}    
+_Promise.reject=function(reason){
+  return new _Promise(
+    (resolve,reject)=>reject(reason)
+  );
+}                                      
 // 有一个失败则返回失败的结果，全部成功返回全成功的数组
 Promise.all = function (promiseList = []) {
   return new Promise((resolve, reject) => {

@@ -17,7 +17,8 @@ export const zhNavbar = navbar([
     children: [
       {
         text: "关于作者",
-        link: "/关于/author" },
+        link: "/关于/author",
+      },
       {
         text: "关于网站",
         link: "/timeline/",

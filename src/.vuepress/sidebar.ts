@@ -21,6 +21,7 @@ export const zhSidebar = sidebar({
             prefix: "数据结构与算法/",
             collapsible: true,
             children: [
+                "绪论",
                 "二叉树",
                 "回溯算法（DFS）",
                 "动态规划",
