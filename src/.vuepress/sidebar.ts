@@ -13,6 +13,8 @@ export const zhSidebar = sidebar({
                 "JavaScript",
                 "TypeScript",
                 "Vue",
+                "Webpack",
+                "项目复盘"
             ]
         },
         {
