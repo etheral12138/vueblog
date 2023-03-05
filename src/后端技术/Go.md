@@ -1,7 +1,7 @@
 ---
 title: Go
 date: 2023-3-5
-icon: 
+icon: go
 category:
 - 后端技术
 tag:
