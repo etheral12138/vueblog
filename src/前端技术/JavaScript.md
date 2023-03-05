@@ -177,7 +177,7 @@ alert( Array.from(str) ); // H,e,l,l,o
 
 首先我们来看总结图：
 
-![js](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
+![this指针](https://etheral.oss-cn-shanghai.aliyuncs.com/images/js.jpg)
 
 可见：Javascript中的this指针与Java中的this很像。
 
@@ -2050,11 +2050,11 @@ JavaScript 执行速度过慢的一个主要原因。而 V8 率先引入了即�
 
 JavaScript 借鉴了很多语言的特性，比如 C 语言的基本语法、Java 的类型系统和内存管理、Scheme 的函数作为一等公民，还有 Self 基于原型（prototype）的继承机制。毫无疑问，JavaScript 是一门非常优秀的语言，特别是“原型继承机制”和“函数是一等公民”这两个设计。
 
-![image-20230210013751917](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013751917.png)
+![JavaScript设计思想](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013751917.png)
 
 V8 的编译流水线完整流程如下图所示：
 
-![image-20230210013829068](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013829068.png)
+![编译流水线](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013829068.png)
 
 编译流水线本身并不复杂，但是其中涉及到了很多技术，诸如 JIT、延迟解析、隐藏类、内联缓存等等。这些技术决定着一段 JavaScript 代码能否正常执行，以及代码的执行效率。
 
