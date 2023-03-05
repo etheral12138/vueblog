@@ -21,7 +21,7 @@ sidebar: false
 
 ### 后端技术
 
-- ### [**Go**](后端技术/Go.md)
+- ### [Go](后端技术/Go.md)
 
 ### :blue_book:数据结构与算法
 
