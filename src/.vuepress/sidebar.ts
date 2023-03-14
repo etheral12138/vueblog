@@ -15,6 +15,7 @@ export const zhSidebar = sidebar({
                 "TypeScript",
                 "Vue",
                 "Webpack",
+                "Android",
                 "项目复盘",
                 "蓝桥杯"
             ]
