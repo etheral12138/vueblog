@@ -273,7 +273,6 @@ import MainProductList from './MainProductList'
 export class Main extends Component {
   constructor() {
     super()
-
     this.state = {
       banners: [],
       productList: []
@@ -645,7 +644,7 @@ export default App
 
 - 传入一个函数
 
-该函数会在DOM被挂载时进行回调，这个函数会传入一个 元素对象，我们可以自己保存；
+该函数会在DOM被挂载时进行回调，这个函数会传入一个元素对象，我们可以自己保存；
 
 使用时，直接拿到之前保存的元素对象即可；
 
@@ -659,7 +658,6 @@ export class App extends PureComponent {
     this.state = {
 
     }
-
     this.titleRef = createRef()
     this.titleEl = null
   }

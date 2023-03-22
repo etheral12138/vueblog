@@ -13,6 +13,10 @@ projects:
     desc: 不仅仅是切图
     link: https://etheral.cc/category/前端技术/
   - icon: project
+    name: 后端技术
+    desc: 不仅仅是SQL
+    link: https://etheral.cc/category/后端技术/
+  - icon: project
     name: 数据结构与算法
     desc: 让人又爱又恨
     link: https://etheral.cc/category/数据结构与算法/

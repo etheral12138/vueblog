@@ -106,11 +106,11 @@ Vue是一种渐进式JavaScript框架。
 
 > data
 
-
+在使用的时候为什么选择函数形式，而不使用对象形式：易造成全局数据污染。
 
 > components
 
-使用的子组件要在父组件中导入，并在components属性中注册。
+使用的子组件要在父组件中导入，并在components属性中注册(install)。
 
 > mixin
 
@@ -256,8 +256,6 @@ export default {
 </script>
 ```
 
-
-
 ### 插槽
 
 <img src="https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230201155158206.png" alt="子组件预留插槽" style="zoom:67%;" />
@@ -351,6 +349,8 @@ export default {
 ```vue
 
 ```
+
+在更新组件的过程中，Vue会逐个比较组件的更改。
 
 :::
 
@@ -1250,10 +1250,6 @@ Suspense组件等待异步组件时渲染一些额外内容，让应用有更好
 
 
 
-
-
-
-
 ## Vue-Router
 
 ### 路由
@@ -2041,7 +2037,7 @@ const render = () => h("div", { className: "app" }, [
 
 - setup函数选项中（setup本身需要是一个函数类型，函数再返回h函数创建的VNode）；
 
-
+在构建过程中，Vue会将模板(`template`)编译到脚本(`script`)区域中。
 
 ## 响应式原理
 
@@ -2180,7 +2176,7 @@ console.log(typeStr1, typeStr2, heightStr1, heightStr2)
 Vue中常用API实现
 
 ```javascript
-//Vue2reactive实现
+//Vue2的reactive实现
 function reactive(obj) {
   Object.keys(obj).forEach(key => {
     let value = obj[key]
@@ -2197,7 +2193,6 @@ function reactive(obj) {
         const dep = getDepend(obj, key)
         // dep.addDepend(reactiveFn)
         dep.depend()
-  
         return value
       }
     })
