@@ -10,7 +10,163 @@ tag:
 ---
 
 
-## 一、JavaScript函数
+
+## 一、JavaScript数据类型
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230324004539031.png)
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230324004517319.png)
+
+**原始类型是不可改变的，而对象类型则是可变的**
+
+### 变量
+
+#### var关键字
+
+var关键字的意义是值绑定，而非赋值。
+
+同时var关键字存在变量提升的现象，即通过var关键字声明的变量会先声明为undefined，而后初始化。
+
+#### let和const关键字
+
+let和const关键字不存在变量提升的现象。
+
+#### 作用域
+
+所有“var 声明”和函数声明的标识符都登记为 varNames，使用“变量作用域”管理； 
+
+其它情况下的标识符 / 变量声明，都作为 lexicalNames 登记，使用“词法作用域”管理。
+
+### Symbol类型
+
+根据规范，只有两种原始类型可以用作对象属性键：
+
+- 字符串类型
+- symbol 类型
+
+否则，如果使用另一种类型，例如数字，它会被自动转换为字符串。所以 `obj[1]` 与 `obj["1"]` 相同，而 `obj[true]` 与 `obj["true"]` 相同。
+
+symbol 是带有可选描述的“原始唯一值”。
+
+```javascript
+let id1 = Symbol("id");
+let id2 = Symbol("id");
+
+alert(id1 == id2); // false
+```
+
+> 注意：symbol 不会被自动转换为字符串
+
+JavaScript 中的大多数值都支持字符串的隐式转换。例如，我们可以 `alert` 任何值，都可以生效。symbol 比较特殊，它不会被自动转换。
+
+如果我们真的想显示一个 symbol，我们需要在它上面调用 `.toString()`，如下所示：
+
+```javascript
+let id = Symbol("id");
+alert(id.toString()); // Symbol(id)，现在它有效了
+```
+
+或者获取 `symbol.description` 属性，只显示描述（description）：
+
+```javascript
+let id = Symbol("id");
+alert(id.description); // id
+```
+
+> 隐藏属性
+
+symbol 允许我们创建对象的“隐藏”属性，代码的任何其他部分都不能意外访问或重写这些属性。
+
+```javascript
+let user = { // 属于另一个代码
+  name: "John"
+};
+
+let id = Symbol("id");
+
+user[id] = 1;
+
+alert( user[id] ); // 我们可以使用 symbol 作为键来访问数据
+```
+
+使用 `Symbol("id")` 作为键，比起用字符串 `"id"` 来有什么好处呢？
+
+由于 `user` 对象属于另一个代码库，所以向它们添加字段是不安全的，因为我们可能会影响代码库中的其他预定义行为。但 symbol 属性不会被意外访问到。第三方代码不会知道新定义的 symbol，因此将 symbol 添加到 `user` 对象是安全的。
+
+如果我们要在对象字面量 `{...}` 中使用 symbol，则需要使用方括号把它括起来。
+
+这是因为我们需要变量 `id` 的值作为键，而不是字符串 “id”。
+
+```javascript
+let id = Symbol("id");
+
+let user = {
+  name: "John",
+  [id]: 123 // 而不是 "id"：123
+};
+```
+
+symbol 属性不参与 `for..in` 循环。
+
+Object.keys()方法 也会忽略它们。这是一般“隐藏符号属性”原则的一部分。如果另一个脚本或库遍历我们的对象，它不会意外地访问到符号属性。
+
+相反，Object.assign()方法会同时复制字符串和 symbol 属性：
+
+```javascript
+let id = Symbol("id");
+let user = {
+  [id]: 123
+};
+
+let clone = Object.assign({}, user);
+
+alert( clone[id] ); // 123
+```
+
+这里并不矛盾，就是这样设计的。这里的想法是当我们克隆或者合并一个 object 时，通常希望 **所有** 属性被复制（包括像 `id` 这样的 symbol）。
+
+> 全局Symbol
+
+正如我们所看到的，通常所有的 symbol 都是不同的，即使它们有相同的名字。但有时我们想要名字相同的 symbol 具有相同的实体。例如，应用程序的不同部分想要访问的 symbol `"id"` 指的是完全相同的属性。
+
+为了实现这一点，**全局symbol注册表**诞生了。我们可以在其中创建 symbol 并在稍后访问它们，它可以确保每次访问相同名字的 symbol 时，返回的都是相同的 symbol。
+
+要从注册表中读取（不存在则创建）symbol，请使用 `Symbol.for(key)`。
+
+该调用会检查全局注册表，如果有一个描述为 `key` 的 symbol，则返回该 symbol，否则将创建一个新 symbol（`Symbol(key)`），并通过给定的 `key` 将其存储在注册表中。
+
+注册表内的 symbol 被称为 **全局 symbol**。如果我们想要一个应用程序范围内的 symbol，可以在代码中随处访问 —— 这就是它们的用途。
+
+```javascript
+// 从全局注册表中读取
+let id = Symbol.for("id"); // 如果该 symbol 不存在，则创建它
+
+// 再次读取（可能是在代码中的另一个位置）
+let idAgain = Symbol.for("id");
+
+// 相同的 symbol
+alert( id === idAgain ); // true
+```
+
+我们已经看到，对于全局 symbol，`Symbol.for(key)` 按名字返回一个 symbol。相反，通过全局 symbol 返回一个名字，我们可以使用 `Symbol.keyFor(sym)`：
+
+```javascript
+// 通过 name 获取 symbol
+let sym = Symbol.for("name");
+let sym2 = Symbol.for("id");
+
+// 通过 symbol 获取 name
+alert( Symbol.keyFor(sym) ); // name
+alert( Symbol.keyFor(sym2) ); // id
+```
+
+`Symbol.keyFor` 内部使用全局 symbol 注册表来查找 symbol 的键。所以它不适用于非全局 symbol。如果 symbol 不是全局的，它将无法找到它并返回 `undefined`。
+
+也就是说，所有 symbol 都具有 `description` 属性。
+
+## 二、JavaScript函数
+
+在JavaScript中，函数是一种特殊的对象，它和对象一样可以拥有属性和值，但是函数和普通对象不同的是，函数可以被调用。
 
 ### 函数声明与函数表达式
 
@@ -64,6 +220,17 @@ let work = makeWorker();
 // 调用它
 work(); // 会显示什么？
 ```
+
+还可以立即调用函数（IIFE）：
+
+```javascript
+(function (){
+    var test = 1
+    console.log(test)
+})()
+```
+
+
 
 ![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230124162419717.png)
 
@@ -319,7 +486,9 @@ sayHi();
 
 在浏览器中，使用 `var`（而不是 `let/const`！）声明的全局函数和变量会成为全局对象的属性。
 
-## 二、JavaScript数据结构
+
+
+## 三、JavaScript数据结构
 
 ### 数组方法：
 
@@ -550,132 +719,7 @@ user?.sayHi(x++); // 没有 "user"，因此代码执行没有到达 sayHi 调用
 alert(x); // 0，值没有增加
 ```
 
-### Symbol类型
 
-根据规范，只有两种原始类型可以用作对象属性键：
-
-- 字符串类型
-- symbol 类型
-
-否则，如果使用另一种类型，例如数字，它会被自动转换为字符串。所以 `obj[1]` 与 `obj["1"]` 相同，而 `obj[true]` 与 `obj["true"]` 相同。
-
-symbol 是带有可选描述的“原始唯一值”。
-
-```javascript
-let id1 = Symbol("id");
-let id2 = Symbol("id");
-
-alert(id1 == id2); // false
-```
-
-> 注意：symbol 不会被自动转换为字符串
-
-JavaScript 中的大多数值都支持字符串的隐式转换。例如，我们可以 `alert` 任何值，都可以生效。symbol 比较特殊，它不会被自动转换。
-
-如果我们真的想显示一个 symbol，我们需要在它上面调用 `.toString()`，如下所示：
-
-```javascript
-let id = Symbol("id");
-alert(id.toString()); // Symbol(id)，现在它有效了
-```
-
-或者获取 `symbol.description` 属性，只显示描述（description）：
-
-```javascript
-let id = Symbol("id");
-alert(id.description); // id
-```
-
-> 隐藏属性
-
-symbol 允许我们创建对象的“隐藏”属性，代码的任何其他部分都不能意外访问或重写这些属性。
-
-```javascript
-let user = { // 属于另一个代码
-  name: "John"
-};
-
-let id = Symbol("id");
-
-user[id] = 1;
-
-alert( user[id] ); // 我们可以使用 symbol 作为键来访问数据
-```
-
-使用 `Symbol("id")` 作为键，比起用字符串 `"id"` 来有什么好处呢？
-
-由于 `user` 对象属于另一个代码库，所以向它们添加字段是不安全的，因为我们可能会影响代码库中的其他预定义行为。但 symbol 属性不会被意外访问到。第三方代码不会知道新定义的 symbol，因此将 symbol 添加到 `user` 对象是安全的。
-
-如果我们要在对象字面量 `{...}` 中使用 symbol，则需要使用方括号把它括起来。
-
-这是因为我们需要变量 `id` 的值作为键，而不是字符串 “id”。
-
-```javascript
-let id = Symbol("id");
-
-let user = {
-  name: "John",
-  [id]: 123 // 而不是 "id"：123
-};
-```
-
-symbol 属性不参与 `for..in` 循环。
-
-Object.keys()方法 也会忽略它们。这是一般“隐藏符号属性”原则的一部分。如果另一个脚本或库遍历我们的对象，它不会意外地访问到符号属性。
-
-相反，Object.assign()方法会同时复制字符串和 symbol 属性：
-
-```javascript
-let id = Symbol("id");
-let user = {
-  [id]: 123
-};
-
-let clone = Object.assign({}, user);
-
-alert( clone[id] ); // 123
-```
-
-这里并不矛盾，就是这样设计的。这里的想法是当我们克隆或者合并一个 object 时，通常希望 **所有** 属性被复制（包括像 `id` 这样的 symbol）。
-
-> 全局Symbol
-
-正如我们所看到的，通常所有的 symbol 都是不同的，即使它们有相同的名字。但有时我们想要名字相同的 symbol 具有相同的实体。例如，应用程序的不同部分想要访问的 symbol `"id"` 指的是完全相同的属性。
-
-为了实现这一点，**全局symbol注册表**诞生了。我们可以在其中创建 symbol 并在稍后访问它们，它可以确保每次访问相同名字的 symbol 时，返回的都是相同的 symbol。
-
-要从注册表中读取（不存在则创建）symbol，请使用 `Symbol.for(key)`。
-
-该调用会检查全局注册表，如果有一个描述为 `key` 的 symbol，则返回该 symbol，否则将创建一个新 symbol（`Symbol(key)`），并通过给定的 `key` 将其存储在注册表中。
-
-注册表内的 symbol 被称为 **全局 symbol**。如果我们想要一个应用程序范围内的 symbol，可以在代码中随处访问 —— 这就是它们的用途。
-
-```javascript
-// 从全局注册表中读取
-let id = Symbol.for("id"); // 如果该 symbol 不存在，则创建它
-
-// 再次读取（可能是在代码中的另一个位置）
-let idAgain = Symbol.for("id");
-
-// 相同的 symbol
-alert( id === idAgain ); // true
-```
-
-我们已经看到，对于全局 symbol，`Symbol.for(key)` 按名字返回一个 symbol。相反，通过全局 symbol 返回一个名字，我们可以使用 `Symbol.keyFor(sym)`：
-
-```javascript
-// 通过 name 获取 symbol
-let sym = Symbol.for("name");
-let sym2 = Symbol.for("id");
-
-// 通过 symbol 获取 name
-alert( Symbol.keyFor(sym) ); // name
-alert( Symbol.keyFor(sym2) ); // id
-```
-
-`Symbol.keyFor` 内部使用全局 symbol 注册表来查找 symbol 的键。所以它不适用于非全局 symbol。如果 symbol 不是全局的，它将无法找到它并返回 `undefined`。
-
-也就是说，所有 symbol 都具有 `description` 属性。
 
 ### 对象的转换
 
@@ -820,7 +864,7 @@ for (let value of Object.values(user)) {
 2. 对该数组使用数组方法，例如 `map`，对这些键/值对进行转换。
 3. 对结果数组使用 `Object.fromEntries(array)` 方法，将结果转回成对象。
 
-## 三、JavaScript的类
+## 四、JavaScript的类
 
 ### 1.静态属性与方法
 
@@ -887,7 +931,7 @@ extends 语法会设置两个原型：
 - 受保护的字段以 `_` 开头。这是一个众所周知的约定，不是在语言级别强制执行的。程序员应该只通过它的类和从它继承的类中访问以 `_` 开头的字段。
 - 私有字段以 `#` 开头。JavaScript 确保我们只能从类的内部访问它们。
 
-## 四、JavaScript的API实现
+## 五、JavaScript的API实现
 
 注意：平时开发时尽量使用lodash等库提供的API，以下内容在面试中可能会用到。
 
@@ -922,8 +966,6 @@ Function.prototype._call = function (ctx, ...args) {
   return result
 }
 ```
-
-
 
 ### 2.apply
 
@@ -1236,8 +1278,6 @@ Promise.any = function (promiseList = []) {
 }
 ```
 
-
-
 ### 5.函数筛选
 
 我们有一个内建的数组方法 `arr.filter(f)`。它通过函数 `f` 过滤元素。如果它返回 `true`，那么该元素会被返回到结果数组中。
@@ -1378,8 +1418,6 @@ const _shallowClone = target => {
 }
 ```
 
-
-
 ### :star::star:10.深拷贝
 
 对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
@@ -1471,8 +1509,6 @@ const _completeDeepClone = (target, map = new WeakMap()) => {
   return cloneTarget
 }
 ```
-
-
 
 
 
@@ -1576,7 +1612,7 @@ LRUCache.prototype.put = function(key, value) {
 
 
 
-## 五、JavaScript原型与继承
+## 六、JavaScript原型与继承
 
 ### 1.原型（prototype）
 
@@ -1598,7 +1634,7 @@ Rabbit.prototype = { constructor: Rabbit };
 - `F.prototype` 的值要么是一个对象，要么就是 `null`：其他值都不起作用。
 - `"prototype"` 属性仅当设置在一个构造函数上，并通过 `new` 调用时，才具有这种特殊的影响。
 
-## 六、JavaScript的迭代器和生成器
+## 七、JavaScript的迭代器和生成器
 
 ### generator(生成器)
 
@@ -1683,7 +1719,7 @@ alert( [...range] ); // 1,2,3,4,5
 - 在 generator（仅在）内部，存在 `yield` 操作。
 - 外部代码和 generator 可能会通过 `next/yield` 调用交换结果。
 
-## 七、JavaScript的模块
+## 八、JavaScript的模块
 
 ### 1.默认导出
 
@@ -1721,7 +1757,7 @@ export User{...} //user.js
 - 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
   - `import "module"`
 
-## 八、JavaScript语法糖
+## 九、JavaScript语法糖
 
 ### 1.解构赋值
 
@@ -2010,13 +2046,13 @@ alert( user.friends[1] ); // 1
 - 这两种方法都支持用于智能读/写的转换函数。
 - 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
 
-## 九、JSX语法扩展
+## 十、JSX语法扩展
 
-[JSX (opens new window)](https://facebook.github.io/jsx/)是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因[React (opens new window)](https://reactjs.org/)框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
+JSX 是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因React 框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
 
 想要使用JSX必须做两件事：
 
-1. 给文件一个`.tsx`扩展名
+1. 给文件一个`.jsx`扩展名
 
 2. 启用`jsx`选项
 
@@ -2042,7 +2078,7 @@ alert( user.friends[1] ); // 1
 </script>
 ```
 
-## 十、JavaScript引擎V8
+## 十一、JavaScript引擎V8
 
 在 V8 出现之前，所有的 JavaScript 虚拟机所采用的都是解释执行的方式，这是
 
@@ -2098,11 +2134,82 @@ V8 源代码的结构化之后，就生成了抽象语法树 (AST)，我们称�
 
 ![解释执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014313806.png)
 
+通常有两种类型的解释器，基于栈 (Stack-based)和基于寄存器 (Register-based)，基于栈的解释器使用栈来保存函数参数、中间运算结果、变量等，基于寄存器的虚拟机则支持寄 存器的指令操作，使用寄存器来保存参数、中间计算结果。
+
+大多数解释器都是基于栈的，比如 Java 虚拟机，.Net 虚拟机，还有早期的 V8 虚拟机。基 于堆栈的虚拟机在处理函数调用、解决递归问题和切换上下文时简单明快。
+
+而现在的 V8 虚拟机则采用了基于寄存器的设计，它将一些中间数据保存到寄存器中，了解 这点对于我们分析字节码的执行过程非常重要。
+
 第二种是编译执行。采用这种方式时，也需要先将源代码转换为中间代码，然后我们的编译器再将中间代码编译成机器代码。通常编译成的机器代码是以二进制文件形式存储的，需要执行这段程序的时候直接执行二进制文件就可以了。还可以使用虚拟机将编译后的机器代码保存在内存中，然后直接执行内存中的二进制代码。
 
 ![编译执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014347861.png)
 
 以上就是计算机执行高级语言的两种基本的方式：解释执行和编译执行。但是针对不同的高级语言，这个实现方式还是有很大差异的，比如要执行 C 语言编写的代码，你需要将其编译为二进制代码的文件，然后再直接执行二进制代码。而对于像 Java 语言、JavaScript 语言等，则需要不同虚拟机，模拟计算机的这个编译执行流程。执行 Java 语言，需要经过Java 虚拟机的转换，执行 JavaScript 需要经过 JavaScript 虚拟机的转换。
+
+### V8中的对象
+
+#### 对象继承
+
+```javascript
+function DogFactory(type,color){
+    this.type = type
+    this.color = color
+}
+var dog = new DogFactory('Dog','Black')
+//在V8中
+var dog = {}
+dog.__proto__ = DogFactory.prototype
+DogFactory.call(dog,'Dog','Black')
+```
+
+
+
+
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/19c63a16ec6b6bb67f0a7e74b284398c%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
+
+V8为每个对象都设置了一个\_\_proto\_\_属性，该属性直接指向了该对象的原型对象，原型对象也有自己的\_\_proto\_\_属性，这些属性串连在一起就成了原型链。
+
+在 JavaScript 中，并不建议直接使用 __proto__ 属性，主要有两个原因。
+
+一，这是隐藏属性，并不是标准定义的； 
+
+二，使用该属性会造成严重的性能问题。
+
+### V8中的函数
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/%E4%B8%8B%E8%BD%BD.jpg)
+
+在 V8 内部，函数对象新增了两个隐藏属性。该函数对象的默认的 name 属性值就是 anonymous，表示该函数对象没有被设置名称。另外一个隐藏属性是 code 属性，其值表示函数代码，以字符串的形式存储在内存中。当执行到一个函数调用语句时，V8 便会从函数对象中取出 code 属性值，也就是函数代码，然后再解释执行这段函数代码。
+
+#### 函数表达式
+
+```javascript
+var x=5
+//在V8看来
+var x = undefined
+x = 5
+```
+
+首先，在变量提升阶段，V8并不会执行赋值的表达式，该阶段只会分析基础的语句，比如变量的定义，函数的声明。
+
+而这两行代码是在不同的阶段完成的， `var x` 是在编译阶段完成的，也可以说是在变量提升阶段完成的，而 `x = 5` 是表达式，所有的表达式都是在执行阶段完成的。
+
+在变量提升阶段，V8将这些变量存放在作用域时，还会给它们赋一个默认的undefined值，所以在定义一个普通的变量之前，使用该变量，那么该变量的值就是undefined。
+
+ **表达式是不会在编译阶段执行的**。
+
+在V8解析JavaScript源码的过程中，如果遇到普通的变量声明，那么便会将其提升到作用域中，并给该变量赋值为undefined，如果遇到的是函数声明，那么V8会在内存中为声明生成函数对象，并将该对象提升到作用域中。
+
+#### 函数调用栈
+
+调用栈是代码执行存储函数状态的方式，而每当我们调用一个新函数 时，它都会为该函数的本地变量创建一个新的栈帧。 栈帧由帧指针（标记其开始）和栈指针 （标记其结束）定义。
+
+### 快属性与慢属性
+
+为了提升查找效率，V8 在对象中添加了两个隐藏属性，排序属性和常规属性，指向了 elements 对象，在 elements 对象中，会按照顺序存放排序属性。properties 属性则指向 了 properties 对象，在 properties 对象中，会按照创建时的顺序保存常规属性。 通过引入这两个属性，加速了 V8 查找属性的速度，为了更加进一步提升查找效率，V8 还 实现了内置内属性的策略，当常规属性少于一定数量时，V8 就会将这些常规属性直接写进 对象中，这样又节省了一个中间步骤。10 个数字属性存放在 elements 属性里面。但是如果对象中的属性过多时，或者存在反复添加或者删除属性的操作，那么 V8 就会将线性的存储模式降级为非线性的字典存储模式，这样虽然降低了查找速度，但是却提升了修改 对象的属性的速度。
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e8ce990dce53295a414ce79e38149917%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
 
 ### 总结
 
