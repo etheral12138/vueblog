@@ -14,6 +14,7 @@ export const zhSidebar = sidebar({
                 "JavaScript",
                 "TypeScript",
                 "Vue",
+                "React",
                 "Webpack",
                 "Android",
                 "项目复盘",
