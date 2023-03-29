@@ -29,3 +29,13 @@ tag:
 ![Webpack执行流程](https://etheral.oss-cn-shanghai.aliyuncs.com/images/webpack-workflow.fdd51401.jpg)
 
 三者都是前端构建工具，Grunt 和 Gulp 在早期比较流行，现在 Webpack 相对来说比较主流，不过一些轻量化的任务还是会用 Gulp 来处理，比如单独打包 CSS 文件等。
+
+## Webpack
+
+### Loader
+
+Webpack通过Loader打包JS,CSS等文件。
+
+### Plugin
+
+通过配置Plugin，可以配置Webpack识别的文件类型。

@@ -767,6 +767,32 @@ export class App extends PureComponent {
 export default App
 ```
 
+### Hooks
+
+React更新至16.8版本后，通过引入hooks减少了代码量和开发者的心智负担。
+
+函数式组件已经成为使用主流。
+
+#### useState
+
+State中的状态是异步更新的，也就是说刷新后不会重新渲染。
+
+#### useEffect
+
+需要传入的参数是一个函数，也可以再传一个依赖项数组，React发现依赖项数组变化时会执行函数。
+
+#### useRef
+
+使数据具有响应式，返回一个响应式对象，通过响应式对象的current.value属性获取真实值。
+
+#### useCallBack
+
+顾名思义，传入的参数是一个回调函数。
+
+#### useMemo
+
+顾名思义，会将传入的数据缓存，类似于备忘录。
+
 ### StrictMode 
 
 **StrictMode 是一个用来突出显示应用程序中潜在问题的工具：**
@@ -803,9 +829,9 @@ export default App
 
 ## Redux
 
+action,store
 
-
-
+通过dispatch派发事件。
 
 ## React Router
 
@@ -892,3 +918,4 @@ PureComponent通过prop和state的浅比较（shallowEqual）来实现shouldComp
 
 
 ![Vue项目结构](https://etheral.oss-cn-shanghai.aliyuncs.com/images/20230211224436.png)
+
