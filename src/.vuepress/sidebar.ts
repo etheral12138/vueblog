@@ -58,7 +58,18 @@ export const zhSidebar = sidebar({
             prefix: "计算机基础/",
             collapsible: true,
             children: [
-                "计算机网络"
+                "计算机网络",
+                "操作系统"
+            ]
+        },
+        {
+            text: "人工智能",
+            icon: "note",
+            prefix: "人工智能/",
+            collapsible: true,
+            children: [
+                "机器学习",
+                "深度学习"
             ]
         }
     ],
