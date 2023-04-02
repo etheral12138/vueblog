@@ -20,6 +20,7 @@ sidebar: false
 ### :green_book:后端技术
 
 - #### [Go](后端技术/Go.md)
+- #### [MySQL](后端技术/MySQL.md)
 
 ### :blue_book:数据结构与算法
 

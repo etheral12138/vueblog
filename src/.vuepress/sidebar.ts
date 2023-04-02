@@ -27,7 +27,8 @@ export const zhSidebar = sidebar({
             prefix: "后端技术/",
             collapsible: true,
             children: [
-                "Go"
+                "Go",
+                "MySQL"
             ]
         },
         {
