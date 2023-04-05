@@ -370,7 +370,7 @@ function fn() {
 const obj = {
   name: "zhangsan",
 };
-fn.call(obj); // 指定 this 为 obj，输出 'zhangsan'
+fn.call(obj); // 指定 this 为 obj，输出 'zhangsan',call传多个参数
 ```
 
 - ### 使用apply函数（Function.prototype.apply())
@@ -387,7 +387,7 @@ const obj = {
 };
 
 console.log(add.call(obj, 1, 2, 3)); // 输出 6
-console.log(add.apply(obj, [1, 2, 3])); // 输出 6，只是传参形式不同而已
+console.log(add.apply(obj, [1, 2, 3])); // 输出 6，apply只传参数集合
 ```
 
 - ### 使用bind函数（Function.prototype.bind())
@@ -403,7 +403,7 @@ const obj = {
   z: 3,
 };
 
-const add1 = add.bind(obj, 1, 2, 3); // bind 会返回一个新的函数
+const add1 = add.bind(obj, 1, 2, 3); // bind不会直接执行函数,而是返回一个新的函数
 console.log(add1()); // 执行新的函数，输出 6
 ```
 
@@ -411,11 +411,25 @@ console.log(add1()); // 执行新的函数，输出 6
 
 > 隐式绑定
 
-- 
+
+
+
 
 > new绑定
 
+new对象的步骤即为：
 
+1. 创建一个新的空对象；
+
+2. 将新对象的 __**proto**__ 属性指向构造函数的 prototype 属性；
+
+3. 将构造函数的 this 指向新对象；
+
+4. 执行构造函数内部的代码，并给新对象添加属性和方法；
+
+5. 如果构造函数有返回值，并且返回值是对象类型，则返回该对象；否则返回新对象。
+
+所以如果构造函数返回对象的话，this指向这个返回的对象，如果不返回对象，则指向新创建的对象实例，即括号里的内容。
 
 > 箭头函数
 

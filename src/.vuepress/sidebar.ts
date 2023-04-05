@@ -60,7 +60,8 @@ export const zhSidebar = sidebar({
             collapsible: true,
             children: [
                 "计算机网络",
-                "操作系统"
+                "操作系统",
+                "正则表达式"
             ]
         },
         {
