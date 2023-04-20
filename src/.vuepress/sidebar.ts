@@ -18,7 +18,8 @@ export const zhSidebar = sidebar({
                 "Webpack",
                 "Android",
                 "项目复盘",
-                "蓝桥杯"
+                "蓝桥杯",
+                "Web安全"
             ]
         },
         {
