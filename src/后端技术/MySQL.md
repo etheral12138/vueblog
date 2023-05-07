@@ -1,6 +1,6 @@
 ---
 title: MySQL
-date: 2023-4-1
+date: 2023-04-01
 icon: mysql
 category:
 - 后端技术

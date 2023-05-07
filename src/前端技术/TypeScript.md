@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-date: 2023-1-30
+date: 2023-01-30
 icon: typescript
 category: 
   - 前端技术
@@ -37,6 +37,12 @@ let info :IKun&ICoder={
  }
 }
 ```
+
+### never类型
+
+`never` 类型可以赋值给任何类型,但任何类型都不能赋值给 `never` 类型（除了never自身）。可以在 `switch` 语句中使用 `never` 来做一个穷尽检查。
+
+
 
 ### 类型断言
 

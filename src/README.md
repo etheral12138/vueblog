@@ -2,7 +2,7 @@
 home: true
 layout: BlogHome
 icon: home
-title: 
+title: Etheral的博客
 bgImage: https://etheral.oss-cn-shanghai.aliyuncs.com/images/f7268f98c8a549b4866e94541f2a5186.png
 heroText: false
 heroFullScreen: true

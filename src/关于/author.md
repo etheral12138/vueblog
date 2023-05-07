@@ -1,6 +1,6 @@
 ---
 title: 关于作者
-date: 2023-1-25
+date: 2023-01-25
 sidebar: false
 category:
 - 关于

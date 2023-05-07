@@ -1,6 +1,6 @@
 ---
 title: Vue
-date: 2023-2-4
+date: 2023-02-04
 icon: vue
 category:
   - 前端技术

@@ -1,6 +1,6 @@
 ---
 title: Go
-date: 2023-3-5
+date: 2023-03-05
 icon: go
 category:
 - 后端技术
