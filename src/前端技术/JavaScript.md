@@ -2062,6 +2062,40 @@ alert( user.friends[1] ); // 1
 - 这两种方法都支持用于智能读/写的转换函数。
 - 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
 
+### 3.运算符
+
+#### 可选链操作符?.与空值合并操作符??
+
+在开发过程中，我们可能需要获取深层次属性，例如 system.user.addr.province.name。但在获取 name 这个属性前需要一步步的判断前面的属性是否存在
+
+在编写代码时，如果某个属性不为 null 和 undefined，那么就获取该属性，如果该属性为 null 或 undefined，则取一个默认值
+
+```javascript
+
+let a = null;  
+let b = undefined;
+
+a?.   // true
+b?.   // true
+a ?? "default"   // "default" 
+b ?? "default"   // "default"
+```
+
+#### 隐式转换符!!
+
+!!将值转换为布尔值
+
+```javascript
+!!0   // false
+!!1   // true
+!!""  // true
+!![]  // true
+!!{}  // true 
+!!null // false
+!!undefined // false
+!!NaN // false
+```
+
 ## 十、JSX语法扩展
 
 JSX 是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因React 框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
