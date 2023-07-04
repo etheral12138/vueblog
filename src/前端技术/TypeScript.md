@@ -352,14 +352,6 @@ interface可以用implements关键字约束类
 
 泛型可以解决输入输出关联的问题
 
-```typescript
-function print <T> (arg: T): T{
-	console.log(arg)
-	return arg
-}
-print <string> ('hello') //定义T为string
-print(hello)//TS类型推导为string
-```
 
 ### 基础操作符
 
@@ -372,14 +364,6 @@ in用于遍历枚举类型
 T[K]用于索引访问
 
 extends用于泛型约束
-
-### 常用工具类型
-
-Partial<T>将类型属性变为可选
-
-Required<T>将类型属性变为必选
-
-Readonly<T>将类型属性变为只读
 
 ## 5.TypeScript声明文件
 
