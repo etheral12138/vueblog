@@ -421,7 +421,7 @@ new对象的步骤即为：
 
 1. 创建一个新的空对象；
 
-2. 将新对象的 __**proto**__ 属性指向构造函数的 prototype 属性；
+2. 将新对象的 __**proto**__ 属性指向构造函数的 prototype 属性(原型对象)；
 
 3. 将构造函数的 this 指向新对象；
 
@@ -474,6 +474,21 @@ func();
 
 换句话说，一个变量从技术的角度来讲是存在的，但是在 `let` 之前还不能使用。
 
+#### 闭包的优势：
+
+- 保护变量：闭包可以保护函数内的变量，使得这些变量不会被外部代码所修改。这对于需要维护状态的函数非常有用，可以确保变量不会被误修改。
+- 实现封装：闭包可以实现一些类似于面向对象编程中的封装特性。通过闭包，可以将一些变量和函数私有化，不对外暴露，从而避免其他代码的访问和修改，提高代码的安全性和可维护性。
+- 延长变量寿命：当函数执行完毕后，其内部的变量会被销毁。但是如果存在闭包，则这些变量的生命周期会被延长，直到闭包被销毁。这在一些需要长期保持状态的场景中非常有用。
+- 实现高阶函数：闭包可以用来实现高阶函数，即函数可以作为参数或返回值传递。这可以让代码更加简洁、灵活，提高代码的可读性和可维护性。
+
+#### 闭包的劣势：
+
+- 内存泄漏：如果闭包中引用了一些大量的变量或者对象，那么这些变量和对象的内存会一直被占用，直到闭包被销毁。这会导致内存泄漏的问题，影响程序的性能。
+
+- 变量共享：闭包可以共享外部函数中的变量，如果这些变量被多个闭包共享，则可能会出现不可预料的结果，导致程序出现错误。
+
+- 性能问题：使用闭包会带来一定的性能开销，因为闭包需要维护一个额外的引用环境。在大量使用闭包的情况下，会对程序的性能产生一定的影响。
+
 ### 词法环境
 
 > var声明
@@ -499,8 +514,6 @@ sayHi();
 ```
 
 在浏览器中，使用 `var`（而不是 `let/const`！）声明的全局函数和变量会成为全局对象的属性。
-
-
 
 ## 三、JavaScript数据结构
 
@@ -945,7 +958,885 @@ extends 语法会设置两个原型：
 - 受保护的字段以 `_` 开头。这是一个众所周知的约定，不是在语言级别强制执行的。程序员应该只通过它的类和从它继承的类中访问以 `_` 开头的字段。
 - 私有字段以 `#` 开头。JavaScript 确保我们只能从类的内部访问它们。
 
-## 五、JavaScript的API实现
+## 五、JavaScript事件
+
+### 事件循环
+
+#### 浏览器中的事件循环
+
+![浏览器中的事件循环](https://etheral.oss-cn-shanghai.aliyuncs.com/images/52fed7e3ab8643e885034e6f03e5e36d~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.webp)
+
+#### Node中的事件循环
+
+如图，`Node`中的事件循环分为自上而下六个阶段，循环执行。
+
+![img](https://etheral.oss-cn-shanghai.aliyuncs.com/images/d1f9adf781ca401aacba981fd7c2bf7b~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.webp)
+
+##### 宏任务
+
+1. setlnterval
+2. setimeout
+3. setlmmediate
+4. I/O
+
+##### 微任务
+
+1. Promise.then
+2. Promise.catch
+3. Promise.finally
+4. process.nextTick
+
+### 事件委托
+
+在 JavaScript 中，事件委托（delegate）也称为事件托管或事件代理，就是把目标节点的事件绑定到祖先节点上。这种简单而优雅的事件注册方式是基于事件传播过程中，逐层冒泡总能被祖先节点捕获。
+
+这样做的好处：优化代码，提升运行性能，真正把 HTML 和 JavaScript 分离，也能防止出现在动态添加或删除节点过程中注册的事件丢失的现象。
+
+- 监听数，也就是节省内存
+
+- 可以监听动态元素
+
+#### 阻止默认动作
+
+浏览器对于一些事件会触发默认动作，比如点击`<a>`标签会跳转到`href`指向的网页，那么如何阻止这个默认动作呢？
+
+在支持`addEventListener()`的浏览器中，可以通过调用事件对象的`preventDefault()`方法取消事件的默认操作。IE9之前的IE中，可以通过设置事件对象的`returnValue`属性为`false`达到同样的效果。下面一段代码是结合三种技术取消事件：
+
+```js
+function cancelHandler(event) {
+    var event = event || window.event;//兼容IE
+    //取消事件相关的默认行为
+    if(event.preventDefault) { //标准技术
+        event.preventDefault();
+    }
+    if(event.returnValue) { //兼容IE9之前的IE
+        event.returnValue = false;
+    }
+    return false; //用于处理使用对象属性注册的处理程序
+}
+```
+
+#### 事件冒泡
+
+浏览器从用户点击的按钮从下往上遍历至 window，逐个触发事件处理函数。
+
+W3C 事件模型/事件机制：对每个事件先捕获再冒泡。
+
+举个例子：
+
+```html
+<div id="p" style="width: 200px; height: 200px; background-color: red;">
+    <div id="c" style="width: 100px; height: 100px; background-color: blue;"></div>
+</div>
+```
+
+为上面嵌套的两个div，分别添加onclick事件
+
+```js
+p.onclick = () => console.log('p is clicked');
+c.onclick = () => console.log('c is clicked');
+```
+
+```js
+c.onclick = (event) => {  
+  console.log('c is clicked');
+  event.stopPropagation();
+};
+```
+
+在c的`onclick`代码加上一个参数`event`，并在代码最后一行加上`event.stopPropagation();`
+
+通过这种方式，就可以达到阻止事件冒泡的目的：控制台输出c is clicked后不会再输出p is clicked。
+
+注意，`event.stopPropagation()`并不会阻止默认动作。
+
+```js
+c.onclick = () => {  
+  console.log('c is clicked');
+  return false;
+};
+```
+
+通过`return false`的方式，既阻止了事件冒泡，也阻止了默认行为。
+
+### DOM事件处理调用
+
+`onclick`和`addEventerListener`是指向绑定事件的元素。 一些浏览器，比如`IE6~IE8`下使用`attachEvent`，`this`指向是`window`。 顺便提下：面试官也经常考察`ev.currentTarget`和`ev.target`的区别。 `ev.currentTarget`是绑定事件的元素，而`ev.target`是当前触发事件的元素。
+
+
+
+## 六、JavaScript原型与继承
+
+![构造函数-原型对象-实例关系图By@若川](https://etheral.oss-cn-shanghai.aliyuncs.com/images/ctor-prototype-instance@lxchuan12-92bf3504.png)
+
+```javascript
+function F(){}
+var f = new F();
+// 构造器
+F.prototype.constructor === F; // true
+F.__proto__ === Function.prototype; // true
+Function.prototype.__proto__ === Object.prototype; // true
+Object.prototype.__proto__ === null; // true
+
+// 实例
+f.__proto__ === F.prototype; // true
+F.prototype.__proto__ === Object.prototype; // true
+Object.prototype.__proto__ === null; // true
+
+```
+
+### 1.原型对象（prototype）
+
+每个函数都有 `"prototype"` 属性，即使我们没有提供它。
+
+constructor是prototype上的属性。
+
+默认的 `"prototype"` 是一个只有属性 `constructor` 的对象，属性 `constructor` 指向函数自身。
+
+像这样：
+
+```javascript
+function Rabbit() {}
+
+/* 默认的 prototype
+Rabbit.prototype = { constructor: Rabbit };
+*/
+```
+
+- `F.prototype` 属性（不要把它与 `[[Prototype]]` 弄混了）在 `new F` 被调用时为新对象的 `[[Prototype]]` 赋值。
+- `F.prototype` 的值要么是一个对象，要么就是 `null`：其他值都不起作用。
+- `prototype` 属性仅当设置在一个构造函数上，并通过 `new` 调用时，才具有这种特殊的影响。
+
+### 2.原型（proto）
+
+这里的`proto`就是`[[Prototype]]`
+
+```
+function Rabbit() {}
+
+/* 默认的__proto__
+Rabbit.__proto__ = Function.prototype;
+*/
+```
+
+上面的代码表明：`Rabbit`的proto属性就是`Function`的原型对象
+
+### 3.继承
+
+ `ES6 extends` 继承，主要就是：
+
+- 把子类构造函数(`Child`)的原型(`__proto__`)指向了父类构造函数(`Parent`)，
+- 把子类实例`child`的原型对象(`Child.prototype`) 的原型(`__proto__`)指向了父类`parent`的原型对象(`Parent.prototype`)。
+
+寄生组合式继承。主要就是:
+
+- 子类构造函数的`__proto__`指向父类构造器，继承父类的静态方法。
+- 子类构造函数的`prototype`的`__proto__`指向父类构造器的`prototype`，继承父类的方法。
+- 子类构造器里调用父类构造器，继承父类的属性。
+
+![JavaScript原型关系图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/f-1423e0ef.png)
+
+## 七、JavaScript的迭代器和生成器
+
+### generator(生成器)
+
+常规函数只会返回一个单一值（或者不返回任何值）。
+
+而 generator 可以按需一个接一个地返回（“yield”）多个值。它们可与iterable完美配合使用，从而可以轻松地创建数据流。
+
+```javascript
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  return 3;
+}
+// "generator function" 创建了一个 "generator object"
+let generator = generateSequence();
+alert(generator); // [object Generator]
+```
+
+一个 generator 的主要方法就是 `next()`。当被调用时（译注：指 `next()` 方法），它会恢复上图所示的运行，执行直到最近的 `yield <value>` 语句（`value` 可以被省略，默认为 `undefined`）。然后函数执行暂停，并将产出的（yielded）值返回到外部代码。
+
+`next()` 的结果始终是一个具有两个属性的对象：
+
+- `value`: 产出的（yielded）的值。
+- `done`: 如果 generator 函数已执行完成则为 `true`，否则为 `false`。此时再对 `generator.next()` 进行新的调用不再有任何意义。如果我们这样做，它将返回相同的对象：`{done: true}`。
+
+> generator是可迭代的
+
+```javascript
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  return 3;
+}
+
+let generator = generateSequence();
+
+for(let value of generator) {
+  alert(value); // 1，然后是 2
+}
+```
+
+请注意：上面这个例子会先显示 `1`，然后是 `2`，然后就没了。它不会显示 `3`！
+
+这是因为当 `done: true` 时，`for..of` 循环会忽略最后一个 `value`。因此，如果我们想要通过 `for..of` 循环显示所有的结果，我们必须使用 `yield` 返回它们：
+
+```javascript
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+let generator = generateSequence();
+
+for(let value of generator) {
+  alert(value); // 1，然后是 2，然后是 3
+}
+```
+
+```javascript
+let range = {
+  from: 1,
+  to: 5,
+
+  *[Symbol.iterator]() { // [Symbol.iterator]: function*() 的简写形式
+    for(let value = this.from; value <= this.to; value++) {
+      yield value;
+    }
+  }
+};
+
+alert( [...range] ); // 1,2,3,4,5
+```
+
+当然，这不是巧合。generator 被添加到 JavaScript 语言中是有对 iterator 的考量的，以便更容易地实现 iterator。
+
+带有 generator 的变体比原来的 `range` 迭代代码简洁得多，并且保持了相同的功能。
+
+> 总结
+
+- generator 是通过 generator 函数 `function* f(…) {…}` 创建的。
+- 在 generator（仅在）内部，存在 `yield` 操作。
+- 外部代码和 generator 可能会通过 `next/yield` 调用交换结果。
+
+## 八、JavaScript的模块
+
+### 1.默认导出
+
+每个文件只有一个export default，所以导入时import知道要导入的是什么，可以不用写大括号。
+
+```javascript
+export default User{...} //user.js     
+=> import User from "./user.js"
+export User{...} //user.js             
+=> import {User} from "./user.js"
+```
+
+### 2.总结
+
+> 导出
+
+- 在声明一个 class/function/… 之前：
+  - `export [default] class/function/variable ...`
+- 独立的导出：
+  - `export {x [as y], ...}`.
+- 重新导出：
+  - `export {x [as y], ...} from "module"`
+  - `export * from "module"`（不会重新导出默认的导出）。
+  - `export {default [as y]} from "module"`（重新导出默认的导出）。
+
+> 导入
+
+- 导入命名的导出：
+  - `import {x [as y], ...} from "module"`
+- 导入默认的导出：
+  - `import x from "module"`
+  - `import {default as x} from "module"`
+- 导入所有：
+  - `import * as obj from "module"`
+- 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
+  - `import "module"`
+
+## 九、JavaScript语法糖
+
+### 1.解构赋值
+
+> 数组解构
+
+```javascript
+let [firstName, surname] = "John Smith".split(' ');
+alert(firstName); // John
+alert(surname);  // Smith
+```
+
+我们可以将Object.entries() 方法与解构语法一同使用，来遍历一个对象的“键—值”对：
+
+```javascript
+let user = {
+  name: "John",
+  age: 30
+};
+
+// 使用循环遍历键—值对
+for (let [key, value] of Object.entries(user)) {
+  alert(`${key}:${value}`); // name:John, then age:30
+}
+```
+
+> 对象解构
+
+```javascript
+let options = {
+  title: "Menu"
+};
+
+let {width: w = 100, height: h = 200, title} = options;
+
+alert(title);  // Menu
+alert(w);      // 100
+alert(h);      // 200
+```
+
+> 嵌套解构
+
+如果一个对象或数组嵌套了其他的对象和数组，我们可以在等号左侧使用更复杂的模式（pattern）来提取更深层的数据。
+
+在下面的代码中，`options` 的属性 `size` 是另一个对象，属性 `items` 是另一个数组。赋值语句中等号左侧的模式（pattern）具有相同的结构以从中提取值：
+
+```javascript
+let options = {
+  size: {
+    width: 100,
+    height: 200
+  },
+  items: ["Cake", "Donut"],
+  extra: true
+};
+
+// 为了清晰起见，解构赋值语句被写成多行的形式
+let {
+  size: { // 把 size 赋值到这里
+    width,
+    height
+  },
+  items: [item1, item2], // 把 items 赋值到这里
+  title = "Menu" // 在对象中不存在（使用默认值）
+} = options;
+
+alert(title);  // Menu
+alert(width);  // 100
+alert(height); // 200
+alert(item1);  // Cake
+alert(item2);  // Donut
+```
+
+> 智能函数参数
+
+我们可以用一个对象来传递所有参数，而函数负责把这个对象解构成各个参数：
+
+```javascript
+let options = {
+  title: "My menu",
+  items: ["Item1", "Item2"]
+};
+
+function showMenu({
+  title = "Untitled",
+  width: w = 100,  // width goes to w
+  height: h = 200, // height goes to h
+  items: [item1, item2] // items first element goes to item1, second to item2
+}) {
+  alert( `${title} ${w} ${h}` ); // My Menu 100 200
+  alert( item1 ); // Item1
+  alert( item2 ); // Item2
+}
+
+showMenu(options);
+```
+
+完整语法和解构赋值是一样的：
+
+对于参数对象，属性 `incomingProperty` 对应的变量是 `varName`，默认值是 `defaultValue`。
+
+```javascript
+function({
+  incomingProperty: varName = defaultValue
+  ...
+})
+```
+
+请注意，这种解构假定了 `showMenu()` 函数确实存在参数。如果我们想让所有的参数都使用默认值，那我们应该传递一个空对象：
+
+```javascript
+showMenu({}); // 不错，所有值都取默认值
+
+showMenu(); // 这样会导致错误
+```
+
+我们可以通过指定空对象 `{}` 为整个参数对象的默认值来解决这个问题：
+
+```javascript
+function showMenu({ title = "Menu", width = 100, height = 200 } = {}) {
+  alert( `${title} ${width} ${height}` );
+}
+
+showMenu(); // Menu 100 200
+```
+
+在上面的代码中，整个参数对象的默认是 `{}`，因此总会有内容可以用来解构。
+
+> 总结
+
+- 解构赋值可以简洁地将一个对象或数组拆开赋值到多个变量上。
+
+- 解构对象的完整语法：
+
+  ```javascript
+  let {prop : varName = default, ...rest} = object
+  ```
+
+  这表示属性 `prop` 会被赋值给变量 `varName`，如果没有这个属性的话，就会使用默认值 `default`。
+
+  没有对应映射的对象属性会被复制到 `rest` 对象。
+
+- 解构数组的完整语法：
+
+  ```javascript
+  let [item1 = default, item2, ...rest] = array
+  ```
+
+  数组的第一个元素被赋值给 `item1`，第二个元素被赋值给 `item2`，剩下的所有元素被复制到另一个数组 `rest`。
+
+- 从嵌套数组/对象中提取数据也是可以的，此时等号左侧必须和等号右侧有相同的结构。
+
+### 2.JSON处理
+
+JavaScript 提供了如下方法：
+
+- `JSON.stringify` 将对象转换为 JSON。
+
+- `JSON.parse` 将 JSON 转换回对象。
+
+> JSON.stringify()
+
+方法 `JSON.stringify(student)` 接收对象并将其转换为字符串。
+
+得到的 `json` 字符串是一个被称为 **JSON 编码（JSON-encoded）** 或 **序列化（serialized）** 或 **字符串化（stringified）** 或 **编组化（marshalled）** 的对象。我们现在已经准备好通过有线发送它或将其放入普通数据存储。
+
+请注意，JSON 编码的对象与对象字面量有几个重要的区别：
+
+- 字符串使用双引号。JSON 中没有单引号或反引号。所以 `'John'` 被转换为 `"John"`。
+- 对象属性名称也是双引号的。这是强制性的。所以 `age:30` 被转换成 `"age":30`。
+
+```javascript
+let student = {
+  name: 'John',
+  age: 30,
+  isAdmin: false,
+  courses: ['html', 'css', 'js'],
+  spouse: null
+};
+
+let json = JSON.stringify(student);
+
+alert(typeof json); // we've got a string!
+
+alert(json);
+/* JSON 编码的对象：
+{
+  "name": "John",
+  "age": 30,
+  "isAdmin": false,
+  "courses": ["html", "css", "js"],
+  "spouse": null
+}
+*/
+```
+
+JSON 是语言无关的纯数据规范，因此一些特定于 JavaScript 的对象属性会被 `JSON.stringify` 跳过。
+
+即：
+
+- 函数属性（方法）。
+
+- Symbol 类型的键和值。
+
+- 存储 `undefined` 的属性。
+
+支持嵌套对象转换，并且可以自动对其进行转换。
+
+```javascript
+let meetup = {
+  title: "Conference",
+  room: {
+    number: 23,
+    participants: ["john", "ann"]
+  }
+};
+
+alert( JSON.stringify(meetup) );
+/* 整个结构都被字符串化了
+{
+  "title":"Conference",
+  "room":{"number":23,"participants":["john","ann"]},
+}
+*/
+```
+
+但是不得有循环引用。
+
+```javascript
+let room = {
+  number: 23
+};
+
+let meetup = {
+  title: "Conference",
+  participants: ["john", "ann"]
+};
+
+meetup.place = room;       // meetup 引用了 room
+room.occupiedBy = meetup; // room 引用了 meetup
+
+JSON.stringify(meetup); // Error: Converting circular structure to JSON
+```
+
+手写JSON时的典型错误，此外，JSON 不支持注释。向 JSON 添加注释无效。
+
+```javascript
+let json = `{
+  name: "John",                     // 错误：属性名没有双引号
+  "surname": 'Smith',               // 错误：值使用的是单引号（必须使用双引号）
+  'isAdmin': false                  // 错误：键使用的是单引号（必须使用双引号）
+  "birthday": new Date(2000, 2, 3), // 错误：不允许使用 "new"，只能是裸值
+  "friends": [0,1,2,3]              // 这个没问题
+}`;
+```
+
+> JSON.parse()
+
+例如：
+
+```javascript
+// 字符串化数组
+let numbers = "[0, 1, 2, 3]";
+
+numbers = JSON.parse(numbers);
+
+alert( numbers[1] ); // 1
+```
+
+对于嵌套对象：
+
+```javascript
+let userData = '{ "name": "John", "age": 35, "isAdmin": false, "friends": [0,1,2,3] }';
+
+let user = JSON.parse(userData);
+
+alert( user.friends[1] ); // 1
+```
+
+
+
+> 总结
+
+- JSON 是一种数据格式，具有自己的独立标准和大多数编程语言的库。
+- JSON 支持 object，array，string，number，boolean 和 `null`。
+- JavaScript 提供序列化（serialize）成 JSON 的方法 [JSON.stringify](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) 和解析（反序列化） JSON 的方法 [JSON.parse](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)。
+- 这两种方法都支持用于智能读/写的转换函数。
+- 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
+
+### 3.运算符
+
+#### 可选链操作符?.与空值合并操作符??
+
+在开发过程中，我们可能需要获取深层次属性，例如 system.user.addr.province.name。但在获取 name 这个属性前需要一步步的判断前面的属性是否存在
+
+在编写代码时，如果某个属性不为 null 和 undefined，那么就获取该属性，如果该属性为 null 或 undefined，则取一个默认值
+
+```javascript
+
+let a = null;  
+let b = undefined;
+
+a?.   // true
+b?.   // true
+a ?? "default"   // "default" 
+b ?? "default"   // "default"
+```
+
+#### 隐式转换符!!
+
+!!将值转换为布尔值
+
+```javascript
+!!0   // false
+!!1   // true
+!!""  // true
+!![]  // true
+!!{}  // true 
+!!null // false
+!!undefined // false
+!!NaN // false
+```
+
+## 十、JSX语法扩展
+
+JSX 是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因React 框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
+
+想要使用JSX必须做两件事：
+
+1. 给文件一个`.jsx`扩展名
+
+2. 启用`jsx`选项
+
+如果我们希望**在项目中使用jsx**，那么我们**需要添加对jsx的支持**：
+
+- jsx我们通常会通过Babel来进行转换（React编写的jsx就是通过babel转换的）；
+
+- 对于Vue来说，我们只需要在Babel中配置对应的插件即可；
+
+```jsx
+//Vue中的JSX写法
+<script lang="jsx">
+  export default {
+    render() {
+      return (
+        <div class="app">
+          <h2>我是标题</h2>
+          <p>我是内容, 哈哈哈</p>
+        </div>
+      )
+    }
+  }
+</script>
+```
+
+## 十一、JavaScript引擎V8
+
+在 V8 出现之前，所有的 JavaScript 虚拟机所采用的都是解释执行的方式，这是
+
+JavaScript 执行速度过慢的一个主要原因。而 V8 率先引入了即时编译（JIT）的双轮驱动的设计，这是一种权衡策略，混合编译执行和解释执行这两种手段，给 JavaScript 的执行速度带来了极大的提升。
+
+JavaScript 借鉴了很多语言的特性，比如 C 语言的基本语法、Java 的类型系统和内存管理、Scheme 的函数作为一等公民，还有 Self 基于原型（prototype）的继承机制。毫无疑问，JavaScript 是一门非常优秀的语言，特别是“原型继承机制”和“函数是一等公民”这两个设计。
+
+![JavaScript设计思想](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013751917.png)
+
+V8 的编译流水线完整流程如下图所示：
+
+![编译流水线](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013829068.png)
+
+编译流水线本身并不复杂，但是其中涉及到了很多技术，诸如 JIT、延迟解析、隐藏类、内联缓存等等。这些技术决定着一段 JavaScript 代码能否正常执行，以及代码的执行效率。
+
+比如 V8 中使用的隐藏类（Hide Class），这是将 JavaScript 中动态类型转换为静态类型的一种技术，可以消除动态类型的语言执行速度过慢的问题，如果你熟悉 V8 的工作机制，在你编写 JavaScript 时，就能充分利用好隐藏类这种强大的优化特性，写出更加高效的代码。
+
+再比如，V8 实现了 JavaScript 代码的惰性解析，目的是为了加速代码的启动速度，通过对惰性解析机制的学习，你可以优化你的代码更加适应这个机制，从而提高程序性能。
+
+要想充分了解 V8 是怎么工作的，除了要分析编译流水线，我们还需要了解另外两个非常重要的特性，那就是**事件循环系统**和**垃圾回收机制。**
+
+那么 V8 又是怎么执行 JavaScript 代码的呢？其主要核心流程分为编译和执行两步。首先需要将 JavaScript 代码转换为低级中间代码或者机器能够理解的机器代码，然后再执行转换后的代码并输出执行结果。
+
+你可以把 V8 看成是一个虚构出来的计算机，也称为虚拟机，虚拟机通过模拟实际计算机的各种功能来实现代码的执行，如模拟实际计算机的 CPU、堆栈、寄存器等，虚拟机还具有它自己的一套指令系统。
+
+我们先看上图中的最左边的部分，在 V8 启动执行 JavaScript 之前，它还需要准备执行JavaScript 时所需要的一些基础环境，这些基础环境包括了“堆空间”“栈空间”“全局执行上下文”“全局作用域”“消息循环系统”“内置函数”等，这些内容都是在执行JavaScript 过程中需要使用到的，比如：
+
+JavaScript 全局执行上下文就包含了执行过程中的全局信息，比如一些内置函数，全局变量等信息；
+
+全局作用域包含了一些全局变量，在执行过程中的数据都需要存放在内存中；而 V8 是采用了经典的堆和栈的管理内存管理模式，所以 V8 还需要初始化了内存中的堆和栈结构；
+
+另外，要我们的 V8 系统活起来，还需要初始化消息循环系统，消息循环系统包含了消息驱动器和消息队列，它如同 V8 的心脏，不断接受消息并决策如何处理消息。
+
+基础环境准备好之后，接下来就可以向 V8 提交要执行的 JavaScript 代码了。
+
+首先 V8 会接收到要执行的 JavaScript 源代码，不过这对 V8 来说只是一堆字符串，V8 并不能直接理解这段字符串的含义，它需要**结构化**这段字符串。结构化，是指信息经过分析后可分解成多个互相关联的组成部分，各组成部分间有明确的层次结构，方便使用和维护，并有一定的操作规范。
+
+V8 源代码的结构化之后，就生成了抽象语法树 (AST)，我们称为 AST，AST 是便于 V8 理解的结构。
+
+有了 AST 和作用域之后，接下来就可以生成字节码了，字节码是介于 AST 和机器代码的中间代码。但是与特定类型的机器代码无关，解释器可以直接解释执行字节码，或者通过编译器将其编译为二进制的机器代码再执行。我
+
+相信你注意到了，我们在解释器附近画了个监控机器人，这是一个监控解释器执行状态的模块，在解释执行字节码的过程中，如果发现了某一段代码会被重复多次执行，那么监控机器人就会将这段代码标记为热点代码。
+
+当某段代码被标记为热点代码后，V8 就会将这段字节码丢给优化编译器，优化编译器会在后台将字节码编译为二进制代码，然后再对编译后的二进制代码执行优化操作，优化后的二进制机器代码的执行效率会得到大幅提升。如果下面再执行到这段代码时，那么 V8 会优先选择优化之后的二进制代码，这样代码的执行速度就会大幅提升。
+
+不过，和静态语言不同的是，JavaScript 是一种非常灵活的动态语言，对象的结构和属性是可以在运行时任意修改的，而经过优化编译器优化过的代码只能针对某种固定的结构，一旦在执行过程中，对象的结构被动态修改了，那么优化之后的代码势必会变成无效的代码，这时候优化编译器就需要执行反优化操作，经过反优化的代码，下次执行时就会回退到解释器解释执行。
+
+### 高级语言
+
+和汇编语言一样，处理器也不能直接识别由高级语言所编写的代码，那怎么办呢？通常，要有两种方式来执行这些代码。
+
+第一种是解释执行，需要先将输入的源代码通过解析器编译成中间代码，之后直接使用解释器解释执行中间代码，然后直接输出结果。具体流程如下图所示：
+
+![解释执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014313806.png)
+
+通常有两种类型的解释器，基于栈 (Stack-based)和基于寄存器 (Register-based)，基于栈的解释器使用栈来保存函数参数、中间运算结果、变量等，基于寄存器的虚拟机则支持寄 存器的指令操作，使用寄存器来保存参数、中间计算结果。
+
+大多数解释器都是基于栈的，比如 Java 虚拟机，.Net 虚拟机，还有早期的 V8 虚拟机。基 于堆栈的虚拟机在处理函数调用、解决递归问题和切换上下文时简单明快。
+
+而现在的 V8 虚拟机则采用了基于寄存器的设计，它将一些中间数据保存到寄存器中，了解 这点对于我们分析字节码的执行过程非常重要。
+
+第二种是编译执行。采用这种方式时，也需要先将源代码转换为中间代码，然后我们的编译器再将中间代码编译成机器代码。通常编译成的机器代码是以二进制文件形式存储的，需要执行这段程序的时候直接执行二进制文件就可以了。还可以使用虚拟机将编译后的机器代码保存在内存中，然后直接执行内存中的二进制代码。
+
+![编译执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014347861.png)
+
+V8团队为了提升V8的启动速度，采用了惰性编译。
+
+V8使用了两个编译器：
+
+1. 第一个是 **基线编译器**，它负责将JavaScript代码编译为 **没有优化** 过的机器代码。
+2. 第二个是 **优化编译器**，它负责将一些热点代码（执行频繁的代码） **优化** 为执行效率更高的机器代码。
+
+以上就是计算机执行高级语言的两种基本的方式：解释执行和编译执行。但是针对不同的高级语言，这个实现方式还是有很大差异的，比如要执行 C 语言编写的代码，你需要将其编译为二进制代码的文件，然后再直接执行二进制代码。而对于像 Java 语言、JavaScript 语言等，则需要不同虚拟机，模拟计算机的这个编译执行流程。执行 Java 语言，需要经过Java 虚拟机的转换，执行 JavaScript 需要经过 JavaScript 虚拟机的转换。
+
+#### V8中的字节码
+
+所谓字节码，是指编译过程中的中间代码。
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/6a9f1a826b924eb74f0ab08a18528a68%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/0b207ca6b427bf6281dce67d4f96835d%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
+
+字节码可以提升代码启动速度，降低代码的复杂度。
+
+有了字节码，无论是解释器的解释执行，还是优化编译器的编译执行，都可以直接针对字节来进行操作。由于字节码占用的空间远小于二进制代码，所以浏览器就可以实现缓存所有的字节码，而不是仅仅缓存顶层的字节码。
+
+### V8中的对象
+
+#### 对象继承
+
+```javascript
+function DogFactory(type,color){
+    this.type = type
+    this.color = color
+}
+var dog = new DogFactory('Dog','Black')
+//在V8中
+var dog = {}
+dog.__proto__ = DogFactory.prototype
+DogFactory.call(dog,'Dog','Black')
+```
+
+
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/19c63a16ec6b6bb67f0a7e74b284398c%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
+
+V8为每个对象都设置了一个\_\_proto\_\_属性，该属性直接指向了该对象的原型对象，原型对象也有自己的\_\_proto\_\_属性，这些属性串连在一起就成了原型链。
+
+在 JavaScript 中，并不建议直接使用 __proto__ 属性，主要有两个原因。
+
+一，这是隐藏属性，并不是标准定义的； 
+
+二，使用该属性会造成严重的性能问题。
+
+#### 快属性与慢属性
+
+为了提升查找效率，V8 在对象中添加了两个隐藏属性，排序属性和常规属性，指向了 elements 对象，在 elements 对象中，会按照顺序存放排序属性。properties 属性则指向 了 properties 对象，在 properties 对象中，会按照创建时的顺序保存常规属性。 通过引入这两个属性，加速了 V8 查找属性的速度，为了更加进一步提升查找效率，V8 还 实现了内置内属性的策略，当常规属性少于一定数量时，V8 就会将这些常规属性直接写进 对象中，这样又节省了一个中间步骤。10 个数字属性存放在 elements 属性里面。但是如果对象中的属性过多时，或者存在反复添加或者删除属性的操作，那么 V8 就会将线性的存储模式降级为非线性的字典存储模式，这样虽然降低了查找速度，但是却提升了修改 对象的属性的速度。
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e8ce990dce53295a414ce79e38149917%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
+
+#### 隐藏类
+
+在 V8 中，每个对象都有一个隐藏类，隐藏类在 V8 中又被称为 map。 每个对象的第一个属性的指针都指向其 map 地址。
+
+### V8中的函数
+
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/%E4%B8%8B%E8%BD%BD.jpg)
+
+在 V8 内部，函数对象新增了两个隐藏属性。该函数对象的默认的 name 属性值就是 anonymous，表示该函数对象没有被设置名称。另外一个隐藏属性是 code 属性，其值表示函数代码，以字符串的形式存储在内存中。当执行到一个函数调用语句时，V8 便会从函数对象中取出 code 属性值，也就是函数代码，然后再解释执行这段函数代码。
+
+#### 函数表达式
+
+```javascript
+var x=5
+//在V8看来
+var x = undefined
+x = 5
+```
+
+首先，在变量提升阶段，V8并不会执行赋值的表达式，该阶段只会分析基础的语句，比如变量的定义，函数的声明。
+
+而这两行代码是在不同的阶段完成的， `var x` 是在编译阶段完成的，也可以说是在变量提升阶段完成的，而 `x = 5` 是表达式，所有的表达式都是在执行阶段完成的。
+
+在变量提升阶段，V8将这些变量存放在作用域时，还会给它们赋一个默认的undefined值，所以在定义一个普通的变量之前，使用该变量，那么该变量的值就是undefined。
+
+ **表达式是不会在编译阶段执行的**。
+
+在V8解析JavaScript源码的过程中，如果遇到普通的变量声明，那么便会将其提升到作用域中，并给该变量赋值为undefined，如果遇到的是函数声明，那么V8会在内存中为声明生成函数对象，并将该对象提升到作用域中。
+
+#### 函数调用栈
+
+调用栈是代码执行存储函数状态的方式，而每当我们调用一个新函数 时，它都会为该函数的本地变量创建一个新的栈帧。 栈帧由帧指针（标记其开始）和栈指针 （标记其结束）定义。
+
+### V8的垃圾回收机制
+
+在 V8 中，会把堆分为新生代和老生代两个区域，新生代中存放的是生存时间短的对象，老生代中存放生存时间久的对象。 
+
+新生代通常只支持 1～8M 的容量，而老生代支持的容量就大很多了。对于这两块区域， V8 分别使用两个不同的垃圾回收器，以便更高效地实施垃圾回收。
+
+副垃圾回收器 -Minor GC (Scavenger)，主要负责新生代的垃圾回收。 
+
+主垃圾回收器 -Major GC，主要负责老生代的垃圾回收。
+
+副垃圾回收器采用了 Scavenge 算法，是把新生代空间对半划分为两个区域，一半是对象区域，一半是空闲区域。新的数据都分配在对象区域，等待对象区域快分配满的时候，垃圾回收器便执行垃圾回收操作，之后将存活的对象从对象区域拷贝到空闲区域，并将两个区域 互换。
+
+主垃圾回收器回收器主要负责老生代中的垃圾数据的回收操作，会经历标记、清除和整理过程。
+
+为了解决全停顿而造成的用户体验的问题，V8 团队经过了很多年的努力，向现有的垃圾回 收器添加并行、并发和增量等垃圾回收技术，并且也已经取得了一些成效。这些技术主要是 从两方面来解决垃圾回收效率问题的：
+
+第一，将一个完整的垃圾回收的任务拆分成多个小的任务，这样就消灭了单个长的垃圾 回收任务；
+
+第二，将标记对象、移动对象等任务转移到后台线程进行，这会大大减少主线程暂停的 时间，改善页面卡顿的问题，让动画、滚动和用户交互更加流畅。
+
+V8 最开始的垃圾回收器有两个特点，第一个是垃圾回收在主线程上执行，第二个特点是一 次执行一个完整的垃圾回收流程。 
+
+由于这两个原因，很容易造成主线程卡顿，所以 V8 采用了很多优化执行效率的方案。 
+
+第一个方案是并行回收，在执行一个完整的垃圾回收过程中，垃圾回收器会使用多个辅助线程来并行执行垃圾回收。
+
+ 第二个方案是增量式垃圾回收，垃圾回收器将标记工作分解为更小的块，并且穿插在主线程 不同的任务之间执行。采用增量垃圾回收时，垃圾回收器没有必要一次执行完整的垃圾回收 过程，每次执行的只是整个垃圾回收过程中的一小部分工作。 
+
+第三个方案是并发回收，回收线程在执行 JavaScript 的过程，辅助线程能够在后台完成的 执行垃圾回收的操作。 主垃圾回收器就综合采用了所有的方案，副垃圾回收器也采用了部分方案。
+
+![image-20230515001719998](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230515001719998.png)
+
+### 消息队列
+
+#### 宏任务与微任务
+
+setTimeout 的本质是将同步函数调用改成异步函数调用，这里的异步调用是将回调函数封装成宏任务，并将其添加进消息队列中，然后主线程再按照一定规则循环地从消息队列中读 取下一个宏任务。 
+
+消息队列中事件又被称为宏任务，不过，宏任务的时间颗粒度太粗了，无法胜任一些对精度 和实时性要求较高的场景，而微任务可以在实时性和效率之间做有效的权衡。 
+
+微任务之所以能实现这样的效果，主要取决于微任务的执行时机，微任务其实是一个需要异 步执行的函数，执行时机是在主函数执行结束之后、当前宏任务结束之前。 因为微任务依然是在当前的任务中执行的，所以如果在微任务中循环触发新的微任务，那么 将导致消息队列中的其他任务没有机会被执行。
+
+### 总结
+
+因为计算机只能识别二进制指令，所以要让计算机执行一段高级语言通常有两种手段，第一种是将高级代码转换为二进制代码，再让计算机去执行；另外一种方式是在计算机安装一个解释器，并由解释器来解释执行。
+
+解释执行和编译执行都有各自的优缺点，解释执行启动速度快，但是执行时速度慢，而编译执行启动速度慢，但是执行速度快。为了充分地利用解释执行和编译执行的优点，规避其缺点，V8 采用了一种权衡策略，在启动过程中采用了解释执行的策略，但是如果某段代码的执行频率超过一个值，那么 V8 就会采用优化编译器将其编译成执行效率更加高效的机器代码。
+
+理解了这一点，我们就可以来深入分析 V8 执行一段 JavaScript 代码所经历的主要流程了，这包括了：
+
+- 初始化基础环境；
+
+- 解析源码生成 AST 和作用域；
+
+- 依据 AST 和作用域生成字节码；解释执行字节码；
+
+- 监听热点代码；
+
+- 优化热点代码为二进制的机器代码；
+
+- 反优化生成的二进制机器代码。
+
+这里你需要注意的是，V8 是一门动态语言，在运行过程中，某些被优化的结构可能会被
+
+JavaScript 动态修改了，这会导致之前被优化的代码失效，如果某块优化之后的代码失效
+
+了，那么编译器需要执行反优化操作。
+
+## 十二、面试题
 
 注意：平时开发时尽量使用lodash等库提供的API，以下内容在面试中可能会用到。
 
@@ -1624,729 +2515,6 @@ LRUCache.prototype.put = function(key, value) {
 ```
 
 
-
-
-## 六、JavaScript原型与继承
-
-### 1.原型（prototype）
-
-每个函数都有 `"prototype"` 属性，即使我们没有提供它。
-
-constructor是prototype上的属性。
-
-默认的 `"prototype"` 是一个只有属性 `constructor` 的对象，属性 `constructor` 指向函数自身。
-
-像这样：
-
-```javascript
-function Rabbit() {}
-
-/* 默认的 prototype
-Rabbit.prototype = { constructor: Rabbit };
-*/
-```
-
-- `F.prototype` 属性（不要把它与 `[[Prototype]]` 弄混了）在 `new F` 被调用时为新对象的 `[[Prototype]]` 赋值。
-- `F.prototype` 的值要么是一个对象，要么就是 `null`：其他值都不起作用。
-- `"prototype"` 属性仅当设置在一个构造函数上，并通过 `new` 调用时，才具有这种特殊的影响。
-
-## 七、JavaScript的迭代器和生成器
-
-### generator(生成器)
-
-常规函数只会返回一个单一值（或者不返回任何值）。
-
-而 generator 可以按需一个接一个地返回（“yield”）多个值。它们可与iterable完美配合使用，从而可以轻松地创建数据流。
-
-```javascript
-function* generateSequence() {
-  yield 1;
-  yield 2;
-  return 3;
-}
-// "generator function" 创建了一个 "generator object"
-let generator = generateSequence();
-alert(generator); // [object Generator]
-```
-
-一个 generator 的主要方法就是 `next()`。当被调用时（译注：指 `next()` 方法），它会恢复上图所示的运行，执行直到最近的 `yield <value>` 语句（`value` 可以被省略，默认为 `undefined`）。然后函数执行暂停，并将产出的（yielded）值返回到外部代码。
-
-`next()` 的结果始终是一个具有两个属性的对象：
-
-- `value`: 产出的（yielded）的值。
-- `done`: 如果 generator 函数已执行完成则为 `true`，否则为 `false`。此时再对 `generator.next()` 进行新的调用不再有任何意义。如果我们这样做，它将返回相同的对象：`{done: true}`。
-
-> generator是可迭代的
-
-```javascript
-function* generateSequence() {
-  yield 1;
-  yield 2;
-  return 3;
-}
-
-let generator = generateSequence();
-
-for(let value of generator) {
-  alert(value); // 1，然后是 2
-}
-```
-
-请注意：上面这个例子会先显示 `1`，然后是 `2`，然后就没了。它不会显示 `3`！
-
-这是因为当 `done: true` 时，`for..of` 循环会忽略最后一个 `value`。因此，如果我们想要通过 `for..of` 循环显示所有的结果，我们必须使用 `yield` 返回它们：
-
-```javascript
-function* generateSequence() {
-  yield 1;
-  yield 2;
-  yield 3;
-}
-
-let generator = generateSequence();
-
-for(let value of generator) {
-  alert(value); // 1，然后是 2，然后是 3
-}
-```
-
-```javascript
-let range = {
-  from: 1,
-  to: 5,
-
-  *[Symbol.iterator]() { // [Symbol.iterator]: function*() 的简写形式
-    for(let value = this.from; value <= this.to; value++) {
-      yield value;
-    }
-  }
-};
-
-alert( [...range] ); // 1,2,3,4,5
-```
-
-当然，这不是巧合。generator 被添加到 JavaScript 语言中是有对 iterator 的考量的，以便更容易地实现 iterator。
-
-带有 generator 的变体比原来的 `range` 迭代代码简洁得多，并且保持了相同的功能。
-
-> 总结
-
-- generator 是通过 generator 函数 `function* f(…) {…}` 创建的。
-- 在 generator（仅在）内部，存在 `yield` 操作。
-- 外部代码和 generator 可能会通过 `next/yield` 调用交换结果。
-
-## 八、JavaScript的模块
-
-### 1.默认导出
-
-每个文件只有一个export default，所以导入时import知道要导入的是什么，可以不用写大括号。
-
-```javascript
-export default User{...} //user.js     
-=> import User from "./user.js"
-export User{...} //user.js             
-=> import {User} from "./user.js"
-```
-
-### 2.总结
-
-> 导出
-
-- 在声明一个 class/function/… 之前：
-  - `export [default] class/function/variable ...`
-- 独立的导出：
-  - `export {x [as y], ...}`.
-- 重新导出：
-  - `export {x [as y], ...} from "module"`
-  - `export * from "module"`（不会重新导出默认的导出）。
-  - `export {default [as y]} from "module"`（重新导出默认的导出）。
-
-> 导入
-
-- 导入命名的导出：
-  - `import {x [as y], ...} from "module"`
-- 导入默认的导出：
-  - `import x from "module"`
-  - `import {default as x} from "module"`
-- 导入所有：
-  - `import * as obj from "module"`
-- 导入模块（其代码，并运行），但不要将其任何导出赋值给变量：
-  - `import "module"`
-
-## 九、JavaScript语法糖
-
-### 1.解构赋值
-
-> 数组解构
-
-```javascript
-let [firstName, surname] = "John Smith".split(' ');
-alert(firstName); // John
-alert(surname);  // Smith
-```
-
-我们可以将Object.entries() 方法与解构语法一同使用，来遍历一个对象的“键—值”对：
-
-```javascript
-let user = {
-  name: "John",
-  age: 30
-};
-
-// 使用循环遍历键—值对
-for (let [key, value] of Object.entries(user)) {
-  alert(`${key}:${value}`); // name:John, then age:30
-}
-```
-
-> 对象解构
-
-```javascript
-let options = {
-  title: "Menu"
-};
-
-let {width: w = 100, height: h = 200, title} = options;
-
-alert(title);  // Menu
-alert(w);      // 100
-alert(h);      // 200
-```
-
-> 嵌套解构
-
-如果一个对象或数组嵌套了其他的对象和数组，我们可以在等号左侧使用更复杂的模式（pattern）来提取更深层的数据。
-
-在下面的代码中，`options` 的属性 `size` 是另一个对象，属性 `items` 是另一个数组。赋值语句中等号左侧的模式（pattern）具有相同的结构以从中提取值：
-
-```javascript
-let options = {
-  size: {
-    width: 100,
-    height: 200
-  },
-  items: ["Cake", "Donut"],
-  extra: true
-};
-
-// 为了清晰起见，解构赋值语句被写成多行的形式
-let {
-  size: { // 把 size 赋值到这里
-    width,
-    height
-  },
-  items: [item1, item2], // 把 items 赋值到这里
-  title = "Menu" // 在对象中不存在（使用默认值）
-} = options;
-
-alert(title);  // Menu
-alert(width);  // 100
-alert(height); // 200
-alert(item1);  // Cake
-alert(item2);  // Donut
-```
-
-> 智能函数参数
-
-我们可以用一个对象来传递所有参数，而函数负责把这个对象解构成各个参数：
-
-```javascript
-let options = {
-  title: "My menu",
-  items: ["Item1", "Item2"]
-};
-
-function showMenu({
-  title = "Untitled",
-  width: w = 100,  // width goes to w
-  height: h = 200, // height goes to h
-  items: [item1, item2] // items first element goes to item1, second to item2
-}) {
-  alert( `${title} ${w} ${h}` ); // My Menu 100 200
-  alert( item1 ); // Item1
-  alert( item2 ); // Item2
-}
-
-showMenu(options);
-```
-
-完整语法和解构赋值是一样的：
-
-对于参数对象，属性 `incomingProperty` 对应的变量是 `varName`，默认值是 `defaultValue`。
-
-```javascript
-function({
-  incomingProperty: varName = defaultValue
-  ...
-})
-```
-
-请注意，这种解构假定了 `showMenu()` 函数确实存在参数。如果我们想让所有的参数都使用默认值，那我们应该传递一个空对象：
-
-```javascript
-showMenu({}); // 不错，所有值都取默认值
-
-showMenu(); // 这样会导致错误
-```
-
-我们可以通过指定空对象 `{}` 为整个参数对象的默认值来解决这个问题：
-
-```javascript
-function showMenu({ title = "Menu", width = 100, height = 200 } = {}) {
-  alert( `${title} ${width} ${height}` );
-}
-
-showMenu(); // Menu 100 200
-```
-
-在上面的代码中，整个参数对象的默认是 `{}`，因此总会有内容可以用来解构。
-
-> 总结
-
-- 解构赋值可以简洁地将一个对象或数组拆开赋值到多个变量上。
-
-- 解构对象的完整语法：
-
-  ```javascript
-  let {prop : varName = default, ...rest} = object
-  ```
-
-  这表示属性 `prop` 会被赋值给变量 `varName`，如果没有这个属性的话，就会使用默认值 `default`。
-
-  没有对应映射的对象属性会被复制到 `rest` 对象。
-
-- 解构数组的完整语法：
-
-  ```javascript
-  let [item1 = default, item2, ...rest] = array
-  ```
-
-  数组的第一个元素被赋值给 `item1`，第二个元素被赋值给 `item2`，剩下的所有元素被复制到另一个数组 `rest`。
-
-- 从嵌套数组/对象中提取数据也是可以的，此时等号左侧必须和等号右侧有相同的结构。
-
-### 2.JSON处理
-
-JavaScript 提供了如下方法：
-
-- `JSON.stringify` 将对象转换为 JSON。
-
-- `JSON.parse` 将 JSON 转换回对象。
-
-> JSON.stringify()
-
-方法 `JSON.stringify(student)` 接收对象并将其转换为字符串。
-
-得到的 `json` 字符串是一个被称为 **JSON 编码（JSON-encoded）** 或 **序列化（serialized）** 或 **字符串化（stringified）** 或 **编组化（marshalled）** 的对象。我们现在已经准备好通过有线发送它或将其放入普通数据存储。
-
-请注意，JSON 编码的对象与对象字面量有几个重要的区别：
-
-- 字符串使用双引号。JSON 中没有单引号或反引号。所以 `'John'` 被转换为 `"John"`。
-- 对象属性名称也是双引号的。这是强制性的。所以 `age:30` 被转换成 `"age":30`。
-
-```javascript
-let student = {
-  name: 'John',
-  age: 30,
-  isAdmin: false,
-  courses: ['html', 'css', 'js'],
-  spouse: null
-};
-
-let json = JSON.stringify(student);
-
-alert(typeof json); // we've got a string!
-
-alert(json);
-/* JSON 编码的对象：
-{
-  "name": "John",
-  "age": 30,
-  "isAdmin": false,
-  "courses": ["html", "css", "js"],
-  "spouse": null
-}
-*/
-```
-
-JSON 是语言无关的纯数据规范，因此一些特定于 JavaScript 的对象属性会被 `JSON.stringify` 跳过。
-
-即：
-
-- 函数属性（方法）。
-
-- Symbol 类型的键和值。
-
-- 存储 `undefined` 的属性。
-
-支持嵌套对象转换，并且可以自动对其进行转换。
-
-```javascript
-let meetup = {
-  title: "Conference",
-  room: {
-    number: 23,
-    participants: ["john", "ann"]
-  }
-};
-
-alert( JSON.stringify(meetup) );
-/* 整个结构都被字符串化了
-{
-  "title":"Conference",
-  "room":{"number":23,"participants":["john","ann"]},
-}
-*/
-```
-
-但是不得有循环引用。
-
-```javascript
-let room = {
-  number: 23
-};
-
-let meetup = {
-  title: "Conference",
-  participants: ["john", "ann"]
-};
-
-meetup.place = room;       // meetup 引用了 room
-room.occupiedBy = meetup; // room 引用了 meetup
-
-JSON.stringify(meetup); // Error: Converting circular structure to JSON
-```
-
-手写JSON时的典型错误，此外，JSON 不支持注释。向 JSON 添加注释无效。
-
-```javascript
-let json = `{
-  name: "John",                     // 错误：属性名没有双引号
-  "surname": 'Smith',               // 错误：值使用的是单引号（必须使用双引号）
-  'isAdmin': false                  // 错误：键使用的是单引号（必须使用双引号）
-  "birthday": new Date(2000, 2, 3), // 错误：不允许使用 "new"，只能是裸值
-  "friends": [0,1,2,3]              // 这个没问题
-}`;
-```
-
-> JSON.parse()
-
-例如：
-
-```javascript
-// 字符串化数组
-let numbers = "[0, 1, 2, 3]";
-
-numbers = JSON.parse(numbers);
-
-alert( numbers[1] ); // 1
-```
-
-对于嵌套对象：
-
-```javascript
-let userData = '{ "name": "John", "age": 35, "isAdmin": false, "friends": [0,1,2,3] }';
-
-let user = JSON.parse(userData);
-
-alert( user.friends[1] ); // 1
-```
-
-
-
-> 总结
-
-- JSON 是一种数据格式，具有自己的独立标准和大多数编程语言的库。
-- JSON 支持 object，array，string，number，boolean 和 `null`。
-- JavaScript 提供序列化（serialize）成 JSON 的方法 [JSON.stringify](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) 和解析（反序列化） JSON 的方法 [JSON.parse](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)。
-- 这两种方法都支持用于智能读/写的转换函数。
-- 如果一个对象具有 `toJSON`，那么它会被 `JSON.stringify` 调用。
-
-### 3.运算符
-
-#### 可选链操作符?.与空值合并操作符??
-
-在开发过程中，我们可能需要获取深层次属性，例如 system.user.addr.province.name。但在获取 name 这个属性前需要一步步的判断前面的属性是否存在
-
-在编写代码时，如果某个属性不为 null 和 undefined，那么就获取该属性，如果该属性为 null 或 undefined，则取一个默认值
-
-```javascript
-
-let a = null;  
-let b = undefined;
-
-a?.   // true
-b?.   // true
-a ?? "default"   // "default" 
-b ?? "default"   // "default"
-```
-
-#### 隐式转换符!!
-
-!!将值转换为布尔值
-
-```javascript
-!!0   // false
-!!1   // true
-!!""  // true
-!![]  // true
-!!{}  // true 
-!!null // false
-!!undefined // false
-!!NaN // false
-```
-
-## 十、JSX语法扩展
-
-JSX 是一种嵌入式的类似XML的语法。 它可以被转换成合法的JavaScript，尽管转换的语义是依据不同的实现而定的。 JSX因React 框架而流行，但也存在其它的实现。 TypeScript支持内嵌，类型检查以及将JSX直接编译为JavaScript。
-
-想要使用JSX必须做两件事：
-
-1. 给文件一个`.jsx`扩展名
-
-2. 启用`jsx`选项
-
-如果我们希望**在项目中使用jsx**，那么我们**需要添加对jsx的支持**：
-
-- jsx我们通常会通过Babel来进行转换（React编写的jsx就是通过babel转换的）；
-
-- 对于Vue来说，我们只需要在Babel中配置对应的插件即可；
-
-```jsx
-//Vue中的JSX写法
-<script lang="jsx">
-  export default {
-    render() {
-      return (
-        <div class="app">
-          <h2>我是标题</h2>
-          <p>我是内容, 哈哈哈</p>
-        </div>
-      )
-    }
-  }
-</script>
-```
-
-## 十一、JavaScript引擎V8
-
-在 V8 出现之前，所有的 JavaScript 虚拟机所采用的都是解释执行的方式，这是
-
-JavaScript 执行速度过慢的一个主要原因。而 V8 率先引入了即时编译（JIT）的双轮驱动的设计，这是一种权衡策略，混合编译执行和解释执行这两种手段，给 JavaScript 的执行速度带来了极大的提升。
-
-JavaScript 借鉴了很多语言的特性，比如 C 语言的基本语法、Java 的类型系统和内存管理、Scheme 的函数作为一等公民，还有 Self 基于原型（prototype）的继承机制。毫无疑问，JavaScript 是一门非常优秀的语言，特别是“原型继承机制”和“函数是一等公民”这两个设计。
-
-![JavaScript设计思想](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013751917.png)
-
-V8 的编译流水线完整流程如下图所示：
-
-![编译流水线](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210013829068.png)
-
-编译流水线本身并不复杂，但是其中涉及到了很多技术，诸如 JIT、延迟解析、隐藏类、内联缓存等等。这些技术决定着一段 JavaScript 代码能否正常执行，以及代码的执行效率。
-
-比如 V8 中使用的隐藏类（Hide Class），这是将 JavaScript 中动态类型转换为静态类型的一种技术，可以消除动态类型的语言执行速度过慢的问题，如果你熟悉 V8 的工作机制，在你编写 JavaScript 时，就能充分利用好隐藏类这种强大的优化特性，写出更加高效的代码。
-
-再比如，V8 实现了 JavaScript 代码的惰性解析，目的是为了加速代码的启动速度，通过对惰性解析机制的学习，你可以优化你的代码更加适应这个机制，从而提高程序性能。
-
-要想充分了解 V8 是怎么工作的，除了要分析编译流水线，我们还需要了解另外两个非常重要的特性，那就是**事件循环系统**和**垃圾回收机制。**
-
-那么 V8 又是怎么执行 JavaScript 代码的呢？其主要核心流程分为编译和执行两步。首先需要将 JavaScript 代码转换为低级中间代码或者机器能够理解的机器代码，然后再执行转换后的代码并输出执行结果。
-
-你可以把 V8 看成是一个虚构出来的计算机，也称为虚拟机，虚拟机通过模拟实际计算机的各种功能来实现代码的执行，如模拟实际计算机的 CPU、堆栈、寄存器等，虚拟机还具有它自己的一套指令系统。
-
-我们先看上图中的最左边的部分，在 V8 启动执行 JavaScript 之前，它还需要准备执行JavaScript 时所需要的一些基础环境，这些基础环境包括了“堆空间”“栈空间”“全局执行上下文”“全局作用域”“消息循环系统”“内置函数”等，这些内容都是在执行JavaScript 过程中需要使用到的，比如：
-
-JavaScript 全局执行上下文就包含了执行过程中的全局信息，比如一些内置函数，全局变量等信息；
-
-全局作用域包含了一些全局变量，在执行过程中的数据都需要存放在内存中；而 V8 是采用了经典的堆和栈的管理内存管理模式，所以 V8 还需要初始化了内存中的堆和栈结构；
-
-另外，要我们的 V8 系统活起来，还需要初始化消息循环系统，消息循环系统包含了消息驱动器和消息队列，它如同 V8 的心脏，不断接受消息并决策如何处理消息。
-
-基础环境准备好之后，接下来就可以向 V8 提交要执行的 JavaScript 代码了。
-
-首先 V8 会接收到要执行的 JavaScript 源代码，不过这对 V8 来说只是一堆字符串，V8 并不能直接理解这段字符串的含义，它需要**结构化**这段字符串。结构化，是指信息经过分析后可分解成多个互相关联的组成部分，各组成部分间有明确的层次结构，方便使用和维护，并有一定的操作规范。
-
-V8 源代码的结构化之后，就生成了抽象语法树 (AST)，我们称为 AST，AST 是便于 V8 理解的结构。
-
-有了 AST 和作用域之后，接下来就可以生成字节码了，字节码是介于 AST 和机器代码的中间代码。但是与特定类型的机器代码无关，解释器可以直接解释执行字节码，或者通过编译器将其编译为二进制的机器代码再执行。我
-
-相信你注意到了，我们在解释器附近画了个监控机器人，这是一个监控解释器执行状态的模块，在解释执行字节码的过程中，如果发现了某一段代码会被重复多次执行，那么监控机器人就会将这段代码标记为热点代码。
-
-当某段代码被标记为热点代码后，V8 就会将这段字节码丢给优化编译器，优化编译器会在后台将字节码编译为二进制代码，然后再对编译后的二进制代码执行优化操作，优化后的二进制机器代码的执行效率会得到大幅提升。如果下面再执行到这段代码时，那么 V8 会优先选择优化之后的二进制代码，这样代码的执行速度就会大幅提升。
-
-不过，和静态语言不同的是，JavaScript 是一种非常灵活的动态语言，对象的结构和属性是可以在运行时任意修改的，而经过优化编译器优化过的代码只能针对某种固定的结构，一旦在执行过程中，对象的结构被动态修改了，那么优化之后的代码势必会变成无效的代码，这时候优化编译器就需要执行反优化操作，经过反优化的代码，下次执行时就会回退到解释器解释执行。
-
-### 高级语言
-
-和汇编语言一样，处理器也不能直接识别由高级语言所编写的代码，那怎么办呢？通常，要有两种方式来执行这些代码。
-
-第一种是解释执行，需要先将输入的源代码通过解析器编译成中间代码，之后直接使用解释器解释执行中间代码，然后直接输出结果。具体流程如下图所示：
-
-![解释执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014313806.png)
-
-通常有两种类型的解释器，基于栈 (Stack-based)和基于寄存器 (Register-based)，基于栈的解释器使用栈来保存函数参数、中间运算结果、变量等，基于寄存器的虚拟机则支持寄 存器的指令操作，使用寄存器来保存参数、中间计算结果。
-
-大多数解释器都是基于栈的，比如 Java 虚拟机，.Net 虚拟机，还有早期的 V8 虚拟机。基 于堆栈的虚拟机在处理函数调用、解决递归问题和切换上下文时简单明快。
-
-而现在的 V8 虚拟机则采用了基于寄存器的设计，它将一些中间数据保存到寄存器中，了解 这点对于我们分析字节码的执行过程非常重要。
-
-第二种是编译执行。采用这种方式时，也需要先将源代码转换为中间代码，然后我们的编译器再将中间代码编译成机器代码。通常编译成的机器代码是以二进制文件形式存储的，需要执行这段程序的时候直接执行二进制文件就可以了。还可以使用虚拟机将编译后的机器代码保存在内存中，然后直接执行内存中的二进制代码。
-
-![编译执行流程图](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230210014347861.png)
-
-V8团队为了提升V8的启动速度，采用了惰性编译。
-
-V8使用了两个编译器：
-
-1. 第一个是 **基线编译器**，它负责将JavaScript代码编译为 **没有优化** 过的机器代码。
-2. 第二个是 **优化编译器**，它负责将一些热点代码（执行频繁的代码） **优化** 为执行效率更高的机器代码。
-
-以上就是计算机执行高级语言的两种基本的方式：解释执行和编译执行。但是针对不同的高级语言，这个实现方式还是有很大差异的，比如要执行 C 语言编写的代码，你需要将其编译为二进制代码的文件，然后再直接执行二进制代码。而对于像 Java 语言、JavaScript 语言等，则需要不同虚拟机，模拟计算机的这个编译执行流程。执行 Java 语言，需要经过Java 虚拟机的转换，执行 JavaScript 需要经过 JavaScript 虚拟机的转换。
-
-#### V8中的字节码
-
-所谓字节码，是指编译过程中的中间代码。
-
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/6a9f1a826b924eb74f0ab08a18528a68%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
-
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/0b207ca6b427bf6281dce67d4f96835d%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
-
-字节码可以提升代码启动速度，降低代码的复杂度。
-
-有了字节码，无论是解释器的解释执行，还是优化编译器的编译执行，都可以直接针对字节来进行操作。由于字节码占用的空间远小于二进制代码，所以浏览器就可以实现缓存所有的字节码，而不是仅仅缓存顶层的字节码。
-
-### V8中的对象
-
-#### 对象继承
-
-```javascript
-function DogFactory(type,color){
-    this.type = type
-    this.color = color
-}
-var dog = new DogFactory('Dog','Black')
-//在V8中
-var dog = {}
-dog.__proto__ = DogFactory.prototype
-DogFactory.call(dog,'Dog','Black')
-```
-
-
-
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/19c63a16ec6b6bb67f0a7e74b284398c%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
-
-V8为每个对象都设置了一个\_\_proto\_\_属性，该属性直接指向了该对象的原型对象，原型对象也有自己的\_\_proto\_\_属性，这些属性串连在一起就成了原型链。
-
-在 JavaScript 中，并不建议直接使用 __proto__ 属性，主要有两个原因。
-
-一，这是隐藏属性，并不是标准定义的； 
-
-二，使用该属性会造成严重的性能问题。
-
-#### 快属性与慢属性
-
-为了提升查找效率，V8 在对象中添加了两个隐藏属性，排序属性和常规属性，指向了 elements 对象，在 elements 对象中，会按照顺序存放排序属性。properties 属性则指向 了 properties 对象，在 properties 对象中，会按照创建时的顺序保存常规属性。 通过引入这两个属性，加速了 V8 查找属性的速度，为了更加进一步提升查找效率，V8 还 实现了内置内属性的策略，当常规属性少于一定数量时，V8 就会将这些常规属性直接写进 对象中，这样又节省了一个中间步骤。10 个数字属性存放在 elements 属性里面。但是如果对象中的属性过多时，或者存在反复添加或者删除属性的操作，那么 V8 就会将线性的存储模式降级为非线性的字典存储模式，这样虽然降低了查找速度，但是却提升了修改 对象的属性的速度。
-
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/e8ce990dce53295a414ce79e38149917%E3%80%90%E6%B5%B7%E9%87%8F%E8%B5%84%E6%BA%90%EF%BC%9A666java.com%E3%80%91.jpg)
-
-#### 隐藏类
-
-在 V8 中，每个对象都有一个隐藏类，隐藏类在 V8 中又被称为 map。 每个对象的第一个属性的指针都指向其 map 地址。
-
-### V8中的函数
-
-![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/%E4%B8%8B%E8%BD%BD.jpg)
-
-在 V8 内部，函数对象新增了两个隐藏属性。该函数对象的默认的 name 属性值就是 anonymous，表示该函数对象没有被设置名称。另外一个隐藏属性是 code 属性，其值表示函数代码，以字符串的形式存储在内存中。当执行到一个函数调用语句时，V8 便会从函数对象中取出 code 属性值，也就是函数代码，然后再解释执行这段函数代码。
-
-#### 函数表达式
-
-```javascript
-var x=5
-//在V8看来
-var x = undefined
-x = 5
-```
-
-首先，在变量提升阶段，V8并不会执行赋值的表达式，该阶段只会分析基础的语句，比如变量的定义，函数的声明。
-
-而这两行代码是在不同的阶段完成的， `var x` 是在编译阶段完成的，也可以说是在变量提升阶段完成的，而 `x = 5` 是表达式，所有的表达式都是在执行阶段完成的。
-
-在变量提升阶段，V8将这些变量存放在作用域时，还会给它们赋一个默认的undefined值，所以在定义一个普通的变量之前，使用该变量，那么该变量的值就是undefined。
-
- **表达式是不会在编译阶段执行的**。
-
-在V8解析JavaScript源码的过程中，如果遇到普通的变量声明，那么便会将其提升到作用域中，并给该变量赋值为undefined，如果遇到的是函数声明，那么V8会在内存中为声明生成函数对象，并将该对象提升到作用域中。
-
-#### 函数调用栈
-
-调用栈是代码执行存储函数状态的方式，而每当我们调用一个新函数 时，它都会为该函数的本地变量创建一个新的栈帧。 栈帧由帧指针（标记其开始）和栈指针 （标记其结束）定义。
-
-### V8的垃圾回收机制
-
-在 V8 中，会把堆分为新生代和老生代两个区域，新生代中存放的是生存时间短的对象，老生代中存放生存时间久的对象。 
-
-新生代通常只支持 1～8M 的容量，而老生代支持的容量就大很多了。对于这两块区域， V8 分别使用两个不同的垃圾回收器，以便更高效地实施垃圾回收。
-
-副垃圾回收器 -Minor GC (Scavenger)，主要负责新生代的垃圾回收。 
-
-主垃圾回收器 -Major GC，主要负责老生代的垃圾回收。
-
-副垃圾回收器采用了 Scavenge 算法，是把新生代空间对半划分为两个区域，一半是对象区域，一半是空闲区域。新的数据都分配在对象区域，等待对象区域快分配满的时候，垃圾回收器便执行垃圾回收操作，之后将存活的对象从对象区域拷贝到空闲区域，并将两个区域 互换。
-
-主垃圾回收器回收器主要负责老生代中的垃圾数据的回收操作，会经历标记、清除和整理过程。
-
-为了解决全停顿而造成的用户体验的问题，V8 团队经过了很多年的努力，向现有的垃圾回 收器添加并行、并发和增量等垃圾回收技术，并且也已经取得了一些成效。这些技术主要是 从两方面来解决垃圾回收效率问题的：
-
-第一，将一个完整的垃圾回收的任务拆分成多个小的任务，这样就消灭了单个长的垃圾 回收任务；
-
-第二，将标记对象、移动对象等任务转移到后台线程进行，这会大大减少主线程暂停的 时间，改善页面卡顿的问题，让动画、滚动和用户交互更加流畅。
-
-V8 最开始的垃圾回收器有两个特点，第一个是垃圾回收在主线程上执行，第二个特点是一 次执行一个完整的垃圾回收流程。 
-
-由于这两个原因，很容易造成主线程卡顿，所以 V8 采用了很多优化执行效率的方案。 
-
-第一个方案是并行回收，在执行一个完整的垃圾回收过程中，垃圾回收器会使用多个辅助线程来并行执行垃圾回收。
-
- 第二个方案是增量式垃圾回收，垃圾回收器将标记工作分解为更小的块，并且穿插在主线程 不同的任务之间执行。采用增量垃圾回收时，垃圾回收器没有必要一次执行完整的垃圾回收 过程，每次执行的只是整个垃圾回收过程中的一小部分工作。 
-
-第三个方案是并发回收，回收线程在执行 JavaScript 的过程，辅助线程能够在后台完成的 执行垃圾回收的操作。 主垃圾回收器就综合采用了所有的方案，副垃圾回收器也采用了部分方案。
-
-### 消息队列
-
-#### 宏任务与微任务
-
-setTimeout 的本质是将同步函数调用改成异步函数调用，这里的异步调用是将回调函数封装成宏任务，并将其添加进消息队列中，然后主线程再按照一定规则循环地从消息队列中读 取下一个宏任务。 
-
-消息队列中事件又被称为宏任务，不过，宏任务的时间颗粒度太粗了，无法胜任一些对精度 和实时性要求较高的场景，而微任务可以在实时性和效率之间做有效的权衡。 
-
-微任务之所以能实现这样的效果，主要取决于微任务的执行时机，微任务其实是一个需要异 步执行的函数，执行时机是在主函数执行结束之后、当前宏任务结束之前。 因为微任务依然是在当前的任务中执行的，所以如果在微任务中循环触发新的微任务，那么 将导致消息队列中的其他任务没有机会被执行。
-
-### 总结
-
-因为计算机只能识别二进制指令，所以要让计算机执行一段高级语言通常有两种手段，第一种是将高级代码转换为二进制代码，再让计算机去执行；另外一种方式是在计算机安装一个解释器，并由解释器来解释执行。
-
-解释执行和编译执行都有各自的优缺点，解释执行启动速度快，但是执行时速度慢，而编译执行启动速度慢，但是执行速度快。为了充分地利用解释执行和编译执行的优点，规避其缺点，V8 采用了一种权衡策略，在启动过程中采用了解释执行的策略，但是如果某段代码的执行频率超过一个值，那么 V8 就会采用优化编译器将其编译成执行效率更加高效的机器代码。
-
-理解了这一点，我们就可以来深入分析 V8 执行一段 JavaScript 代码所经历的主要流程了，这包括了：
-
-- 初始化基础环境；
-
-- 解析源码生成 AST 和作用域；
-
-- 依据 AST 和作用域生成字节码；解释执行字节码；
-
-- 监听热点代码；
-
-- 优化热点代码为二进制的机器代码；
-
-- 反优化生成的二进制机器代码。
-
-这里你需要注意的是，V8 是一门动态语言，在运行过程中，某些被优化的结构可能会被
-
-JavaScript 动态修改了，这会导致之前被优化的代码失效，如果某块优化之后的代码失效
-
-了，那么编译器需要执行反优化操作。
 
 > 本文参考链接:
 >

@@ -10,6 +10,20 @@ tag:
 ---
 ## 1.TypeScript的类型
 
+### 基础类型
+
+boolean,number,string
+
+undefined,null
+
+any,unknown,void
+
+never
+
+数组类型
+
+元组类型tuple
+
 ### 联合类型与交叉类型
 
 联合类型用|连接两种类型，表示满足其中一种类型即可。
@@ -212,7 +226,7 @@ type PointType={
 
 interface只可用于描述对象的类型，type可用于描述对象，数组等所有结构的类型。
 
-但是type有其局限性，比如：不能重复声明同一个类型。interface可以多次声明。
+但是type有其局限性，比如：不能重复声明同一个类型。interface可以多次声明然后合并重复声明。
 
 ### 接口的继承
 
@@ -330,7 +344,42 @@ abstract class Shape {
 }
 ```
 
-**抽象类不能实例化。**
+**抽象类只能被继承，不能实例化。**作为基类，抽象方法必须被子类实现
+
+interface可以用implements关键字约束类
 
 ## 4.TypeScript泛型编程
+
+泛型可以解决输入输出关联的问题
+
+```typescript
+function print <T> (arg: T): T{
+	console.log(arg)
+	return arg
+}
+print <string> ('hello') //定义T为string
+print(hello)//TS类型推导为string
+```
+
+### 基础操作符
+
+typeof用于获取类型
+
+keyof用于获取所有键
+
+in用于遍历枚举类型
+
+T[K]用于索引访问
+
+extends用于泛型约束
+
+### 常用工具类型
+
+Partial<T>将类型属性变为可选
+
+Required<T>将类型属性变为必选
+
+Readonly<T>将类型属性变为只读
+
+## 5.TypeScript声明文件
 

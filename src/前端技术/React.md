@@ -855,6 +855,18 @@ action,store
 
 通过shouldComponentUpdate（SCU）方法**控制render方法是否被调用**
 
+![](https://etheral.oss-cn-shanghai.aliyuncs.com/images/20230514155743.png)
+
+### diff算法
+
+1. 永远只比较同层节点，不会跨层级比较节点。
+2. 不同的两个节点产生不同的树。这也就是上面总结的类型不相同的情况，把原来的节点以及它的后代全部干掉，替换成新的。
+3. 通过 key 值指定哪些元素是相同的。
+
+key 选取的原则一般是 `不需要全局唯一，但必须列表中保持唯一`。
+
+不用数组索引做 key 值的根本原因在于：数组下标值不稳定，修改顺序会修改当前 key
+
 ## React性能优化
 
 ### render函数的优化
@@ -919,3 +931,8 @@ PureComponent通过prop和state的浅比较（shallowEqual）来实现shouldComp
 
 ![Vue项目结构](https://etheral.oss-cn-shanghai.aliyuncs.com/images/20230211224436.png)
 
+## 面试题
+
+1.ReactRouter基本用法是什么？
+
+路由的模式有两种:hash模式、history模式、路由的动态传参、重定向、高阶路由组件。

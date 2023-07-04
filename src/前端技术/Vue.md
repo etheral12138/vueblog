@@ -215,6 +215,171 @@ export default {
 
   如果当前的属性是一个非prop的attribute, 那么该属性会默认添加到子组件的根元素上。
 
+##### 源码解析
+
+在初始化 `props` 之前，首先会对 `props` 做一次 `normalize`，它发生在 `mergeOptions` 的时候
+
+`normalizeProps` 的主要目的就是把我们编写的 `props` 转成对象格式，因为实际上 `props` 除了对象格式，还允许写成数组格式。
+
+我们接下来重点看 `normalizeProps` 的实现，其实这个函数的主要目的就是把我们编写的 `props` 转成对象格式，因为实际上 `props` 除了对象格式，还允许写成数组格式。
+
+当 `props` 是一个数组，每一个数组元素 `prop` 只能是一个 `string`，表示 `prop` 的 `key`，转成驼峰格式，`prop` 的类型为空。
+
+当 `props` 是一个对象，对于 `props` 中每个 `prop` 的 `key`，我们会转驼峰格式，而它的 `value`，如果不是一个对象，我们就把它规范成一个对象。
+
+如果 `props` 既不是数组也不是对象，就抛出一个警告。
+
+由于对象形式的 `props` 可以指定每个 `prop` 的类型和定义其它的一些属性，推荐用对象形式定义 `props`。
+
+- 初始化
+
+`Props` 的初始化主要发生在 `new Vue` 中的 `initState` 阶段，`initProps` 主要做 3 件事情：校验、响应式和代理。
+
+1.校验
+
+校验的逻辑很简单，遍历 `propsOptions`，执行 `validateProp(key, propsOptions, propsData, vm)` 方法。这里的 `propsOptions` 就是我们定义的 `props` 在规范后生成的 `options.props` 对象，`propsData` 是从父组件传递的 `prop` 数据。所谓校验的目的就是检查一下我们传递的数据是否满足 `prop`的定义规范。
+
+`validateProp` 主要就做 3 件事情：处理 `Boolean` 类型的数据，处理默认数据，`prop` 断言，并最终返回 `prop` 的值。
+
+如果 `prop` 没有定义 `default` 属性，那么返回 `undefined`，通过这块逻辑我们知道除了 `Boolean` 类型的数据，其余没有设置 `default` 属性的 `prop` 默认值都是 `undefined`。
+
+开发环境下对 `prop` 的默认值是否为对象或者数组类型的判断，如果是的话会报警告，因为对象和数组类型的 `prop`，他们的默认值必须要返回一个工厂函数。
+
+如果上一次组件渲染父组件传递的 `prop` 的值是 `undefined`，则直接返回 上一次的默认值 `vm._props[key]`，这样可以避免触发不必要的 `watcher` 的更新。
+
+判断 `def` 如果是工厂函数且 `prop` 的类型不是 `Function` 的时候，返回工厂函数的返回值，否则直接返回 `def`。
+
+`assertProp` 函数的目的是断言这个 `prop` 是否合法。
+
+首先判断如果 `prop` 定义了 `required` 属性但父组件没有传递这个 `prop` 数据的话会报一个警告。
+
+接着判断如果 `value` 为空且 `prop` 没有定义 `required` 属性则直接返回。
+
+然后再去对 `prop` 的类型做校验，先是拿到 `prop` 中定义的类型 `type`，并尝试把它转成一个类型数组，然后依次遍历这个数组，执行 `assertType(value, type[i])` 去获取断言的结果，直到遍历完成或者是 `valid` 为 `true` 的时候跳出循环。
+
+`assertProp` 函数的目的是断言这个 `prop` 是否合法。
+
+如果 `prop` 定义了 `required` 属性但父组件没有传递这个 `prop` 数据的话会报一个警告。
+
+如果 `value` 为空且 `prop` 没有定义 `required` 属性则直接返回。
+
+然后再去对 `prop` 的类型做校验，先是拿到 `prop` 中定义的类型 `type`，并尝试把它转成一个类型数组，然后依次遍历这个数组，执行 `assertType(value, type[i])` 去获取断言的结果，直到遍历完成或者是 `valid` 为 `true` 的时候跳出循环。
+
+`assertType` 的逻辑很简单，先通过 `getType(type)` 获取 `prop` 期望的类型 `expectedType`，然后再去根据几种不同的情况对比 `prop` 的值 `value` 是否和 `expectedType` 匹配，最后返回匹配的结果。
+
+如果循环结束后 `valid` 仍然为 `false`，那么说明 `prop` 的值 `value` 与 `prop` 定义的类型都不匹配，那么就会输出一段通过 `getInvalidTypeMessage(name, value, expectedTypes)` 生成的警告信息。
+
+最后判断当 `prop` 自己定义了 `validator` 自定义校验器，则执行 `validator` 校验器方法，如果校验不通过则输出警告信息。
+
+2.响应式
+
+在开发环境中我们会校验 `prop` 的 `key` 是否是 `HTML` 的保留属性，并且在 `defineReactive` 的时候会添加一个自定义 `setter`，当我们直接对 `prop` 赋值的时候会输出警告。
+
+关于 `prop` 的响应式有一点不同的是当 `vm` 是非根实例的时候，会先执行 `toggleObserving(false)`，它的目的是为了响应式的优化
+
+在经过响应式处理后，我们会把 `prop` 的值添加到 `vm._props` 中，比如 key 为 `name` 的 `prop`，它的值保存在 `vm._props.name` 中，但是我们在组件中可以通过 `this.name` 访问到这个 `prop`
+
+当访问 `this.name` 的时候就相当于访问 `this._props.name`。
+
+- Props 更新
+
+我们知道，当父组件传递给子组件的 `props` 值变化，子组件对应的值也会改变，同时会触发子组件的重新渲染。
+
+> 子组件props更新
+
+首先，`prop` 数据的值变化在父组件，我们知道在父组件的 `render` 过程中会访问到这个 `prop` 数据，所以当 `prop` 数据变化一定会触发父组件的重新渲染，那么重新渲染是如何更新子组件对应的 `prop` 的值呢？
+
+在父组件重新渲染的最后，会执行 `patch` 过程，进而执行 `patchVnode` 函数，`patchVnode` 通常是一个递归过程，当它遇到组件 `vnode` 的时候，会执行组件更新过程的 `prepatch` 钩子函数
+
+内部会调用 `updateChildComponent` 方法来更新 `props`，注意第二个参数就是父组件的 `propData`，那么为什么 `vnode.componentOptions.propsData` 就是父组件传递给子组件的 `prop` 数据呢（这个也同样解释了第一次渲染的 `propsData` 来源）？原来在组件的 `render` 过程中，对于组件节点会通过 `createComponent` 方法来创建组件 `vnode`
+
+在创建组件 `vnode` 的过程中，首先从 `data` 中提取出 `propData`，然后在 `new VNode` 的时候，作为第七个参数 `VNodeComponentOptions` 中的一个属性传入，所以我们可以通过 `vnode.componentOptions.propsData` 拿到 `prop` 数据。
+
+这里的 `propsData` 是父组件传递的 `props` 数据，`vm` 是子组件的实例。`vm._props` 指向的就是子组件的 `props` 值，`propKeys` 就是在之前 `initProps` 过程中，缓存的子组件中定义的所有 `prop` 的 `key`。主要逻辑就是遍历 `propKeys`，然后执行 `props[key] = validateProp(key, propOptions, propsData, vm)` 重新验证和计算新的 `prop` 数据，更新 `vm._props`，也就是子组件的 `props`，这个就是子组件 `props` 的更新过程。
+
+> 子组件重新渲染
+
+子组件的重新渲染有 2 种情况，一个是 `prop` 值被修改，另一个是对象类型的 `prop` 内部属性的变化。
+
+当执行 `props[key] = validateProp(key, propOptions, propsData, vm)` 更新子组件 `prop` 的时候，会触发 `prop` 的 `setter` 过程，只要在渲染子组件的时候访问过这个 `prop` 值，那么根据响应式原理，就会触发子组件的重新渲染。
+
+再来看一下当对象类型的 `prop` 的内部属性发生变化的时候，这个时候其实并没有触发子组件 `prop` 的更新。但是在子组件的渲染过程中，访问过这个对象 `prop`，所以这个对象 `prop` 在触发 `getter` 的时候会把子组件的 `render watcher` 收集到依赖中，然后当我们在父组件更新这个对象 `prop` 的某个属性的时候，会触发 `setter` 过程，也就会通知子组件 `render watcher` 的 `update`，进而触发子组件的重新渲染。
+
+- toggleObserving
+
+  ```javascript
+  export let shouldObserve: boolean = true
+  
+  export function toggleObserving (value: boolean) {
+    shouldObserve = value
+  }
+  ```
+
+  它在当前模块中定义了 `shouldObserve` 变量，用来控制在 `observe` 的过程中是否需要把当前值变成一个 `Observer` 对象。
+
+  在 `initProps` 的过程中：
+
+  ```javascript
+  const isRoot = !vm.$parent
+  // root instance props should be converted
+  if (!isRoot) {
+    toggleObserving(false)
+  }
+  for (const key in propsOptions) {
+    // ...
+    const value = validateProp(key, propsOptions, propsData, vm)
+    defineReactive(props, key, value)
+    // ...
+  }
+  toggleObserving(true)
+  ```
+
+  对于非根实例的情况，我们会执行 `toggleObserving(false)`，然后对于每一个 `prop` 值，去执行 `defineReactive(props, key, value)` 去把它变成响应式。
+
+  通常对于值 `val` 会执行 `observe` 函数，然后遇到 `val` 是对象或者数组的情况会递归执行 `defineReactive` 把它们的子属性都变成响应式的，但是由于 `shouldObserve` 的值变成了 `false`，这个递归过程被省略了。为什么会这样呢？
+
+  因为正如我们前面分析的，对于对象的 `prop` 值，子组件的 `prop` 值始终指向父组件的 `prop` 值，只要父组件的 `prop` 值变化，就会触发子组件的重新渲染，所以这个 `observe` 过程是可以省略的。
+
+  最后再执行 `toggleObserving(true)` 恢复 `shouldObserve` 为 `true`。
+
+  在 `validateProp` 的过程中：
+
+  ```javascript
+  // check default value
+  if (value === undefined) {
+    value = getPropDefaultValue(vm, prop, key)
+    // since the default value is a fresh copy,
+    // make sure to observe it.
+    const prevShouldObserve = shouldObserve
+    toggleObserving(true)
+    observe(value)
+    toggleObserving(prevShouldObserve)
+  }
+  ```
+
+  这种是父组件没有传递 `prop` 值对默认值的处理逻辑，因为这个值是一个拷贝，所以我们需要 `toggleObserving(true)`，然后执行 `observe(value)` 把值变成响应式。
+
+  在 `updateChildComponent` 过程中：
+
+  ```javascript
+  // update props
+  if (propsData && vm.$options.props) {
+    toggleObserving(false)
+    const props = vm._props
+    const propKeys = vm.$options._propKeys || []
+    for (let i = 0; i < propKeys.length; i++) {
+      const key = propKeys[i]
+      const propOptions: any = vm.$options.props // wtf flow?
+      props[key] = validateProp(key, propOptions, propsData, vm)
+    }
+    toggleObserving(true)
+    // keep a copy of raw propsData
+    vm.$options.propsData = propsData
+  }
+  ```
+
+  其实和 `initProps` 的逻辑一样，不需要对引用类型 `props` 递归做响应式处理，所以也需要 `toggleObserving(false)`。
+
 #### 子传父
 
 > emits属性
@@ -260,8 +425,6 @@ export default {
 
 <img src="https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230201155158206.png" alt="子组件预留插槽" style="zoom:67%;" />
 
-
-
 当需要使用多个插槽时，可以用名字作为区分标志。
 
 ```vue
@@ -276,6 +439,12 @@ export default {
 ```
 
 如果只有一个默认插槽, 那么template可以省略。
+
+#### 源码解析
+
+编译发生在调用 `vm.$mount` 的时候，所以编译的顺序是先编译父组件，再编译子组件。
+
+普通插槽是在父组件编译和渲染阶段生成 `vnodes`，所以数据的作用域是父组件实例，子组件渲染的时候直接拿到这些渲染好的 `vnodes`。而对于作用域插槽，父组件在编译和渲染阶段并不会直接生成 `vnodes`，而是在父节点 `vnode` 的 `data` 中保留一个 `scopedSlots` 对象，存储着不同名称的插槽以及它们对应的渲染函数，只有在编译和渲染子组件阶段才会执行这个渲染函数生成 `vnodes`，由于是在子组件环境执行的，所以对应的数据作用域是子组件实例。
 
 ### 生命周期
 
@@ -361,8 +530,6 @@ export default {
 
 
 ### 异步组件
-
-
 
 ### ref响应式数据
 
@@ -491,6 +658,10 @@ export default{
 </template>
 ```
 
+#### 源码解析
+
+`<keep-alive>` 组件是一个抽象组件，它的实现通过自定义 `render` 函数并且利用了插槽，并且知道了 `<keep-alive>` 缓存 `vnode`，了解组件包裹的子元素——也就是插槽是如何做更新的。且在 `patch` 过程中对于已缓存的组件不会执行 `mounted`，所以不会有一般的组件的生命周期函数但是又提供了 `activated` 和 `deactivated` 钩子函数。另外我们还知道了 `<keep-alive>` 的 `props` 除了 `include` 和 `exclude` 还有文档中没有提到的 `max`，它能控制我们缓存的个数。
+
 ### 异步组件
 
 ```vue
@@ -566,6 +737,181 @@ export default{
 我们可以在 teleport 中使用组件，并且也可以传入一些数据。
 
 如果我们将**多个teleport应用**到**同一个目标上（to的值相同）**，那么这些**目标会进行合并**。
+
+### nextTick
+
+JS 运行机制
+
+JS 执行是单线程的，它是基于事件循环的。事件循环大致分为以下几个步骤：
+
+（1）所有同步任务都在主线程上执行，形成一个执行栈（execution context stack）。
+
+（2）主线程之外，还存在一个"任务队列"（task queue）。只要异步任务有了运行结果，就在"任务队列"之中放置一个事件。
+
+（3）一旦"执行栈"中的所有同步任务执行完毕，系统就会读取"任务队列"，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。
+
+（4）主线程不断重复上面的第三步。
+
+主线程的执行过程就是一个 tick，而所有的异步结果都是通过 “任务队列” 来调度。 消息队列中存放的是一个个的任务（task）。 规范中规定 task 分为两大类，分别是 macro task 和 micro task，并且每个 macro task 结束后，都要清空所有的 micro task。
+
+在浏览器环境中，常见的 macro task 有 setTimeout、MessageChannel、postMessage、setImmediate；常见的 micro task 有 MutationObsever 和 Promise.then。
+
+`next-tick.js` 对外暴露了 2 个函数，先来看 `nextTick`，这就是我们在上一节执行 `nextTick(flushSchedulerQueue)` 所用到的函数。它的逻辑也很简单，把传入的回调函数 `cb` 压入 `callbacks` 数组，最后一次性地根据 `useMacroTask` 条件执行 `macroTimerFunc` 或者是 `microTimerFunc`，而它们都会在下一个 tick 执行 `flushCallbacks`，`flushCallbacks` 的逻辑非常简单，对 `callbacks` 遍历，然后执行相应的回调函数。
+
+这里使用 `callbacks` 而不是直接在 `nextTick` 中执行回调函数的原因是保证在同一个 tick 内多次执行 `nextTick`，不会开启多个异步任务，而把这些异步任务都压成一个同步任务，在下一个 tick 执行完毕。
+
+```javascript
+ if (!cb && typeof Promise !== 'undefined') {
+  return new Promise(resolve => {
+    _resolve = resolve
+  })
+}
+nextTick().then(() => {})
+```
+
+这是当 `nextTick` 不传 `cb` 参数的时候，提供一个 Promise 化的调用
+
+`next-tick.js` 还对外暴露了 `withMacroTask` 函数，它是对函数做一层包装，确保函数执行过程中对数据任意的修改，触发变化执行 `nextTick` 的时候强制走 `macroTimerFunc`。比如对于一些 DOM 交互事件，如 `v-on` 绑定的事件回调函数的处理，会强制走 macro task。
+
+数据的变化到 DOM 的重新渲染是一个异步过程，发生在下一个 tick。这就是我们平时在开发的过程中，比如从服务端接口去获取数据的时候，数据做了修改，如果我们的某些方法去依赖了数据修改后的 DOM 变化，我们就必须在 `nextTick` 后执行。
+
+Vue.js 提供了 2 种调用 `nextTick` 的方式，一种是全局 API `Vue.nextTick`，一种是实例上的方法 `vm.$nextTick`，无论我们使用哪一种，最后都是调用 `next-tick.js` 中实现的 `nextTick` 方法。
+
+### 源码解析
+
+#### 编译
+
+> 编译入口
+
+```javascript
+export const createCompiler = createCompilerCreator(function baseCompile (
+  template: string,
+  options: CompilerOptions
+): CompiledResult {
+  const ast = parse(template.trim(), options)
+  optimize(ast, options)
+  const code = generate(ast, options)
+  return {
+    ast,
+    render: code.render,
+    staticRenderFns: code.staticRenderFns
+  }
+})
+```
+
+主要有以下三个步骤：
+
+- 解析模板字符串生成 AST
+
+```js
+const ast = parse(template.trim(), options)
+```
+
+- 优化语法树
+
+```js
+optimize(ast, options)
+```
+
+- 生成代码
+
+```js
+const code = generate(ast, options)
+```
+
+> parse
+
+编译过程首先就是对模板做解析，生成 AST，它是一种抽象语法树，是对源代码的抽象语法结构的树状表现形式。
+
+`parse` 函数的输入是 `template` 和 `options`，输出是 AST 的根节点。`template` 就是我们的模板字符串，而 `options` 实际上是和平台相关的一些配置
+
+parseHTML函数
+
+在匹配的过程中会利用 `advance` 函数不断前进整个模板字符串，直到字符串末尾。
+
+匹配的过程中主要利用了正则表达式
+
+当解析到开始标签、闭合标签、文本的时候都会分别执行对应的回调函数
+
+> optimize
+
+深度遍历这个 AST 树，去检测它的每一颗子树是不是静态节点，如果是静态节点则它们生成 DOM 永远不需要改变，这对运行时对模板的更新起到极大的优化作用。
+
+> codegen
+
+#### 事件
+
+Vue 支持 2 种事件类型，原生 DOM 事件和自定义事件，它们主要的区别在于添加和删除事件的方式不一样，并且自定义事件的派发是往当前实例上派发，但是可以利用在父组件环境定义回调函数来实现父子组件的通讯。另外要注意一点，只有组件节点才可以添加自定义事件，并且添加原生 DOM 事件需要使用 `native` 修饰符；而普通元素使用 `.native` 修饰符是没有作用的，也只能添加原生 DOM 事件。
+
+#### 计算属性和侦听属性
+
+
+
+#### 组件更新
+
+组件更新的过程核心就是新旧 vnode diff
+
+新旧VNode不同时，更新逻辑本质上是要替换已存在的节点
+
+- 创建新节点
+
+  `createElm`函数
+
+
+- 更新父的占位符节点
+
+  找到vnode父的占位符节点，
+
+
+- 删除旧节点
+
+  从当前DOM树中删除oldVnode，如果父节点存在，则执行removeVnodes方法
+
+  ```javascript
+  function removeVnodes (parentElm, vnodes, startIdx, endIdx) {
+    for (; startIdx <= endIdx; ++startIdx) {
+      const ch = vnodes[startIdx]
+      if (isDef(ch)) {
+        if (isDef(ch.tag)) {
+          removeAndInvokeRemoveHook(ch)
+          invokeDestroyHook(ch)
+        } else { // Text node
+          removeNode(ch.elm)
+        }
+      }
+    }
+  }
+  ```
+
+  遍历待删除的 `vnodes` 做删除，其中 `removeAndInvokeRemoveHook` 的作用是从 DOM 中移除节点并执行 `module` 的 `remove` 钩子函数，并对它的子节点递归调用 `removeAndInvokeRemoveHook` 函数；`invokeDestroyHook` 是执行 `module` 的 `destory` 钩子函数以及 `vnode` 的 `destory` 钩子函数，并对它的子 `vnode` 递归调用 `invokeDestroyHook` 函数；`removeNode` 就是调用平台的 DOM API 去把真正的 DOM 节点移除。
+
+新旧VNode相同时
+
+调用`patchVNode`方法，作用就是把新的 `vnode` `patch` 到旧的 `vnode` 上
+
+- 执行prepatch钩子函数
+
+  `prepatch` 方法就是拿到新的 `vnode` 的组件配置以及组件实例，去执行 `updateChildComponent` 方法
+
+- 执行 `update` 钩子函数
+
+  在执行完新的 `vnode` 的 `prepatch` 钩子函数，会执行所有 `module` 的 `update` 钩子函数以及用户自定义 `update` 钩子函数
+
+- 完成 `patch` 过程
+
+  如果 `vnode` 是个文本节点且新旧文本不相同，则直接替换文本内容。如果不是文本节点，则判断它们的子节点
+
+  1.`oldCh` 与 `ch` 都存在且不相同时，使用 `updateChildren` 函数来更新子节点，这个后面重点讲。
+
+  2.如果只有 `ch` 存在，表示旧节点不需要了。如果旧的节点是文本节点则先将节点的文本清除，然后通过 `addVnodes` 将 `ch` 批量插入到新节点 `elm` 下。
+
+  3.如果只有 `oldCh` 存在，表示更新的是空节点，则需要将旧的节点通过 `removeVnodes` 全部清除。
+
+  4.当只有旧节点是文本节点的时候，则清除其节点文本内容。
+
+- 执行`postpatch` 钩子函数
+
+  在执行完 `patch` 过程后，会执行 `postpatch` 钩子函数，它是组件自定义的钩子函数，有则执行。
 
 ## Vue3
 
@@ -1270,6 +1616,13 @@ URL与组件的映射关系，构建SPA单页应用。
 
 > URL的Hash,也叫锚点#，本质上是改变window.location的href属性
 
+在单页面web网页中, 单纯的浏览器地址改变, 网页不会重载，如单纯的hash网址改变网页不会变化，因此我们的路由主要是通过监听事件，并利用js实现动态改变网页内容，有两种实现方式：
+
+- hash模式：监听浏览器地址hash值变化，执行相应的js切换网页；
+- history模式：利用history API实现url地址改变，网页内容改变；
+
+它们的区别最明显的就是hash会在浏览器地址后面增加#号，而history可以自定义地址。
+
 Vue-Router的使用过程
 
 1.创建路由对象
@@ -1536,6 +1889,91 @@ export default{
 ![replace的两种写法](https://etheral.oss-cn-shanghai.aliyuncs.com/images/image-20230201224829333.png)
 
 ### 路由守卫
+
+
+
+### 源码解析
+
+先来看通用的插件注册原理：
+
+```javascript
+export function initUse (Vue: GlobalAPI) {
+  Vue.use = function (plugin: Function | Object) { //接收plugin参数
+    const installedPlugins = (this._installedPlugins || (this._installedPlugins = []))  //存储注册过的plugin
+    if (installedPlugins.indexOf(plugin) > -1) {
+      return this   
+    }
+
+    const args = toArray(arguments, 1)
+    args.unshift(this)
+    if (typeof plugin.install === 'function') {
+      plugin.install.apply(plugin, args)
+    } else if (typeof plugin === 'function') {
+      plugin.apply(null, args)
+    }
+    installedPlugins.push(plugin)
+    return this
+  }
+}
+```
+
+每个插件都需要实现一个静态的 `install` 方法，当我们执行 `Vue.use` 注册插件的时候，就会执行这个 `install` 方法，并且在这个 `install` 方法的第一个参数我们可以拿到 `Vue` 对象，这样的好处就是作为插件的编写方不需要再额外去`import Vue` 了。
+
+当用户执行 `Vue.use(VueRouter)` 的时候，实际上就是在执行 `install` 函数，为了确保 `install` 逻辑只执行一次，用了 `install.installed` 变量做已安装的标志位。另外用一个全局的 `_Vue` 来接收参数 `Vue`，因为作为 Vue 的插件对 `Vue` 对象是有依赖的，但又不能去单独去 `import Vue`，因为那样会增加包体积，所以就通过这种方式拿到 `Vue` 对象。
+
+Vue-Router 安装最重要的一步就是利用 `Vue.mixin` 去把 `beforeCreate` 和 `destroyed` 钩子函数注入到每一个组件中。
+
+在组件的初始化阶段，执行到 `beforeCreate` 钩子函数的时候会执行 `router.init` 方法，然后又会执行 `history.transitionTo` 方法做路由过渡
+
+```javascript
+export function createRoute (
+  record: ?RouteRecord,
+  location: Location,
+  redirectedFrom?: ?Location,
+  router?: VueRouter
+): Route {
+  const stringifyQuery = router && router.options.stringifyQuery
+
+  let query: any = location.query || {}
+  try {
+    query = clone(query)
+  } catch (e) {}
+
+  const route: Route = {
+    name: location.name || (record && record.name),
+    meta: (record && record.meta) || {},
+    path: location.path || '/',
+    hash: location.hash || '',
+    query,
+    params: location.params || {},
+    fullPath: getFullPath(location, stringifyQuery),
+    matched: record ? formatMatch(record) : []
+  }
+  if (redirectedFrom) {
+    route.redirectedFrom = getFullPath(redirectedFrom, stringifyQuery)
+  }
+  return Object.freeze(route)
+}
+```
+
+在 Vue-Router 中，所有的 `Route` 最终都会通过 `createRoute` 函数创建，并且它最后是不可以被外部修改的。`Route` 对象中有一个非常重要属性是 `matched`，它通过 `formatMatch(record)` 计算而来
+
+```javascript
+function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
+  const res = []
+  while (record) {
+    res.unshift(record)
+    record = record.parent
+  }
+  return res
+}
+```
+
+可以看它是通过 `record` 循环向上找 `parent`，直到找到最外层，并把所有的 `record` 都 push 到一个数组中，最终返回的就是 `record` 的数组，它记录了一条线路上的所有 `record`。`matched` 属性非常有用，它为之后渲染组件提供了依据。
+
+当我们点击 `router-link` 的时候，实际上最终会执行 `router.push`
+
+`<router-view>` 是一个 `functional` 组件，它的渲染也是依赖 `render` 函数
 
 
 
@@ -1922,7 +2360,7 @@ app.use(function(app) {
 
 Vue推荐在绝大数情况下**使用模板**来创建你的HTML，然后一些特殊的场景，你真的需要**JavaScript的完全编程的能力**，这个时候你可以使用 **渲染函数** ，它**比模板更接近编译器**；
 
-**前面我们讲解过****VNode和VDOM****的概念：**
+前面我们讲解过VNode和VDOM的概念：
 
 - Vue在生成真实的DOM之前，会将我们的节点转换成VNode，而VNode组合在一起形成一颗树结构，就是虚拟DOM（VDOM）；
 
@@ -2105,7 +2543,7 @@ function effect(fn) {
     activeEffect()
     activeEffect = null
 }
-const person = { name: '林三心', age: 22 }
+const person = { name: '以太', age: 18 }
 const animal = { type: 'dog', height: 50 }
 let nameStr1 = ''
 let nameStr2 = ''
@@ -2140,12 +2578,12 @@ effectHeightStr1()
 effectHeightStr2()
 
 console.log(nameStr1, nameStr2, ageStr1, ageStr2)
-// 林三心是个大菜鸟 林三心是个小天才 22岁已经算很老了 22岁还算很年轻啊
+// 以太是个大菜鸟 林三心是个小天才 22岁已经算很老了 22岁还算很年轻啊
 
 console.log(typeStr1, typeStr2, heightStr1, heightStr2)
 // dog是个大菜鸟 dog是个小天才 50已经算很高了 50还算很矮啊
 
-person.name = 'sunshine_lin'
+person.name = '以太'
 person.age = 18
 animal.type = '猫'
 animal.height = 20
@@ -2155,7 +2593,7 @@ trigger(animal, 'type')
 trigger(animal, 'height')
 
 console.log(nameStr1, nameStr2, ageStr1, ageStr2)
-// sunshine_lin是个大菜鸟 sunshine_lin是个小天才 18岁已经算很老了 18岁还算很年轻啊
+// 以太是个大菜鸟 以太是个小天才 18岁已经算很老了 18岁还算很年轻啊
 console.log(typeStr1, typeStr2, heightStr1, heightStr2)
 // 猫是个大菜鸟 猫是个小天才 20已经算很高了 20还算很矮啊
 
@@ -2213,3 +2651,42 @@ function computed(fn) {
 }
 ```
 
+### 特殊情况
+
+#### 对象添加属性
+
+对于使用 `Object.defineProperty` 实现响应式的对象，当我们去给这个对象添加一个新的属性的时候，是不能够触发它的 setter 的
+
+```javascript
+var vm = new Vue({
+  data:{
+    a:1
+  }
+})
+// vm.b 是非响应的
+vm.b = 2
+```
+
+Vue 为了解决这个问题，定义了一个全局 API `Vue.set` 方法
+
+Vue 不能检测到以下变动的数组：
+
+1.当你利用索引直接设置一个项时，例如：`vm.items[indexOfItem] = newValue`
+
+2.当你修改数组的长度时，例如：`vm.items.length = newLength`
+
+对于 `Vue.set` 的实现，当 `target` 是数组的时候，是通过 `target.splice(key, 1, val)` 来添加的
+
+#### 面试题
+
+##### Vue2和Vue3响应式系统实现的区别
+
+在 Vue 2 中，Vue 通过 Object.defineProperty() 来实现响应式系统。当一个对象被传入 Vue 实例进行响应式处理时，Vue 会遍历这个对象的每一个属性，并使用 Object.defineProperty() 把这个属性转换成 getter 和 setter。当这个属性被读取时，getter 会被触发，这个属性就会被添加到依赖中；当这个属性被修改时，setter 会被触发，这个属性的依赖就会被通知，并执行相应的更新操作。这样，当数据被修改时，所有依赖这个数据的地方都会自动更新。
+
+但是，Vue 2 的响应式系统存在一些问题。首先，它只能监听对象的属性，而不能监听新增的属性和删除的属性；其次，它无法监听数组的变化，只能监听数组的索引变化，即当使用数组的 push、pop、shift、unshift、splice 等方法时才能触发更新。
+
+在 Vue 3 中，Vue 引入了 Proxy 对象来实现响应式系统。当一个对象被传入 Vue 实例进行响应式处理时，Vue 会使用 Proxy 对象对这个对象进行代理，这样就可以监听新增的属性和删除的属性，同时也可以监听数组的变化。当一个属性被读取或修改时，Proxy 对象的 get 和 set 方法会被触发，这样就可以实现响应式更新。
+
+Vue 3 的响应式系统还有一个优点，就是它支持了多个根节点，也就是 Fragment。这样可以在不需要添加额外的 DOM 节点的情况下，返回多个元素。
+
+总体来说，Vue 3 的响应式系统更加灵活和高效，能够更好地应对复杂的应用场景
