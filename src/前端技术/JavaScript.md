@@ -2266,7 +2266,7 @@ var arr = [1,5,2,10,15];
 ```javascript
 const lzqdebounce=function(fn,delay){
     let timer=null//上一次的调用
-    const _debounce=function(...args)
+    const _debounce=function(...args){
         if(timer) clearTimeout(timer)
         timer=setTimeout(()=>{
         fn.apply(this,args)

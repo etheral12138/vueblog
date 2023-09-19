@@ -9,21 +9,13 @@ tag:
   - React
 ---
 
-## React组件
+## React
 
-React的组件相对于Vue更加的灵活和多样，按照不同的方式可以分成很多类组件：
+React 支持 class 和 function 两种形式的组件，class 支持 state 属性和生命周期方法，而 function 组件也通过 hooks api 实现了类似的功能。
 
-- 根据组件的定义方式，可以分为：函数组件(Functional Component )和类组件(Class Component)；
+fiber 架构是 React 在 16 以后引入的，之前是 jsx -> render function -> vdom 然后直接递归渲染 vdom，现在则是多了一步 vdom 转 fiber 的 reconcile，在 reconcile 的过程中创建 dom 和做 diff 并打上增删改的 effectTag，然后一次性 commit。这个 reconcile 是可被打断的，可以调度，也就是 fiber 的 schedule。
 
-- 根据组件内部是否有状态需要维护，可以分成：无状态组件(Stateless Component )和有状态组件(Stateful Component)；
-
-- 根据组件的不同职责，可以分成：展示型组件(Presentational Component)和容器型组件(Container Component)；
-
-这些概念有很多重叠，但是他们最主要是关注数据逻辑和UI展示的分离：
-
-- 函数组件、无状态组件、展示型组件主要关注UI的展示；
-
-- 类组件、有状态组件、容器型组件主要关注数据逻辑；
+hooks 的实现就是基于 fiber 的，会在 fiber 节点上放一个链表，每个节点的 memorizedState 属性上存放了对应的数据，然后不同的 hooks api 使用对应的数据来完成不同的功能。
 
 ### 类组件与函数式组件
 
